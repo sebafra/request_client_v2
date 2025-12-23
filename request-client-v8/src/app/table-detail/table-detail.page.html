@@ -1,0 +1,49 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button (click)="goBack()">
+                <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+        <ion-title>Mesa {{ table?.id }}</ion-title>
+    </ion-toolbar>
+
+    @if (table) {
+    <ion-toolbar class="table-status" [class]="getTableStatusClass()">
+        <ion-title>Mesa {{ getStatusText() }}</ion-title>
+    </ion-toolbar>
+    }
+</ion-header>
+
+<ion-content>
+    @if (isBusy) {
+    <div class="ion-text-center ion-padding">
+        <ion-spinner></ion-spinner>
+    </div>
+    }
+
+    @if (!isBusy && orders.length === 0) {
+    <div class="ion-text-center ion-padding">
+        <p>No hay pedidos para esta mesa</p>
+    </div>
+    }
+
+    @if (!isBusy && orders.length > 0) {
+    <ion-list>
+        @for (order of orders; track order.id) {
+        <ion-item>
+            <ion-badge class="quantity" slot="start">
+                {{ order.quantity || 1 }}
+            </ion-badge>
+            <ion-label class="ion-text-wrap">
+                {{ order.item?.description || order.description || 'Sin descripción' }}
+            </ion-label>
+            <ion-note slot="end" class="time">
+                <ion-icon name="time"></ion-icon>
+                {{ formatTime(order.createdAt || order.orderTime) }}
+            </ion-note>
+        </ion-item>
+        }
+    </ion-list>
+    }
+</ion-content>

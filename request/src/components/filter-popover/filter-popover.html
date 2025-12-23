@@ -1,0 +1,14 @@
+<!-- Generated template for the FilterPopoverComponent component -->
+<ion-list>
+  <ion-list-header>
+    Filtrar por subrubro
+  </ion-list-header>
+  <button [ngClass]="{'checked': item.checked}" ion-item *ngFor="let item of subcategories" (click)="selectSubcategory(item)" >
+    <ion-icon *ngIf="item.checked" name="checkmark"></ion-icon>
+    {{item.name}}
+  </button>
+  <button [ngClass]="{'checked': todos.checked}" ion-item (click)="selectSubcategory(todos)">
+    <ion-icon *ngIf="todos.checked" name="checkmark"></ion-icon>
+    {{todos.name}}
+  </button>
+</ion-list>

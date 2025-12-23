@@ -1,0 +1,32 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>Plano de Mesas</ion-title>
+        <ion-buttons slot="end">
+            <ion-button (click)="loadTables()">
+                <ion-icon slot="icon-only" name="refresh"></ion-icon>
+            </ion-button>
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+    @if (isBusy) {
+    <div class="ion-text-center ion-padding">
+        <ion-spinner></ion-spinner>
+    </div>
+    }
+
+    <ion-grid>
+        <ion-row>
+            @for (table of tables; track table.id) {
+            <ion-col size="4">
+                <div class="table-card ion-text-center" [class]="getTableStatusClass(table)" (click)="openTable(table)">
+                    <h1 class="table-number">{{ table.id }}</h1>
+                    <p class="table-total">\${{ table.total || 0 }}</p>
+                    <p class="table-people">{{ table.people || 0 }} <ion-icon name="person"></ion-icon></p>
+                </div>
+            </ion-col>
+            }
+        </ion-row>
+    </ion-grid>
+</ion-content>

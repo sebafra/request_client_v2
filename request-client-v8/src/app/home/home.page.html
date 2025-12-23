@@ -1,0 +1,48 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goToSettings()">
+        <ion-icon slot="icon-only" name="settings" color="primary"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ branchName }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="goToLogin()">
+        <ion-icon slot="icon-only" name="person" color="primary"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  @if (isBusy) {
+  <div class="spinner-container">
+    <ion-spinner></ion-spinner>
+  </div>
+  }
+
+  <ion-grid>
+    <ion-row>
+      @for (category of categories; track category.id) {
+      <ion-col size="6" (click)="goToArticles(category)">
+        <div class="category-card ion-text-center">
+          <!-- Placeholder icon logic, in real app use category image or verify icon font -->
+          <div class="icon-container">
+            <i class="action-icon {{ getIconName(category.icon) }}"></i>
+          </div>
+          <div class="category-name">{{ category.name }}</div>
+        </div>
+      </ion-col>
+      }
+    </ion-row>
+  </ion-grid>
+
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+    <ion-fab-button (click)="showSearchByName()" color="primary" class="mb-2">
+      <ion-icon name="search"></ion-icon>
+    </ion-fab-button>
+    <ion-fab-button (click)="showSearchByCode()" color="light">
+      <ion-icon name="calculator"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

@@ -1,0 +1,29 @@
+<!--
+  Generated template for the TablePage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Mesa {{table?.id}}</ion-title>
+  </ion-navbar>
+  <ion-toolbar class="table-status" [ngClass]="getStatus(table)">
+    Mesa {{getStatusText()}}
+  </ion-toolbar>
+</ion-header>
+
+
+<ion-content>
+<ion-item *ngFor="let item of items" text-wrap>
+  <ion-badge class="quantity" item-start>
+    {{item.quantity}}
+  </ion-badge>
+   {{item.description}}
+   <ion-note item-end class="time">
+    <ion-icon name="time"></ion-icon> 
+    {{item.orderTime}}
+   </ion-note>
+</ion-item>
+</ion-content>

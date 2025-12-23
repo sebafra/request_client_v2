@@ -1,0 +1,14 @@
+page-articles {
+    .badge {
+        font-size: 3rem;
+        font-weight: 400;
+        color: white;
+
+        &.combo {
+            font-size: .7em;
+            border: 1px solid color($colors, primary);
+            color: color($colors, primary);
+            background: none;
+        }
+    }
+}

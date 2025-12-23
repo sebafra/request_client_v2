@@ -1,0 +1,51 @@
+<ion-header>
+  <ion-navbar>
+    <ion-buttons left>
+      <button ion-button icon-only (click)="showSettings()">
+        <ion-icon color="primary" name="settings"></ion-icon>
+      </button>
+    </ion-buttons>
+    <ion-title>{{branch.name}}</ion-title>
+    <ion-buttons right>
+      <button ion-button icon-only (click)="showLogin()">
+        <ion-icon color="primary" name="person"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <ion-item text-center [hidden]="!isBusy">
+    <ion-spinner></ion-spinner>
+  </ion-item>
+  <ion-grid class="category-grid">
+    <ion-row>
+      <ion-col [hidden]="!isValid(item)" col-6 tappable *ngFor="let item of categories" (click)="showArticles(item)">
+        <div text-center>
+          <ion-avatar>
+            <ion-icon class="{{getIconName(item.icon)}}"></ion-icon>
+          </ion-avatar>
+          <div class="text">{{item.name}}</div>
+        </div>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+
+  <!-- <ion-list class="category-list">
+    <ion-item [hidden]="!isValid(item)" tappable *ngFor="let item of categories" (click)="showArticles(item)">
+      <ion-icon class="fa fa-{{getIconName(item.icon)}}" item-left></ion-icon>
+      <ion-label class="text">{{item.name}}</ion-label>
+    </ion-item>
+  </ion-list> -->
+
+</ion-content>
+<ion-fab class="search-article-fab" right bottom>
+  <button ion-fab (click)="showSearchByName()" color="primary">
+    <ion-icon name="search"></ion-icon>
+  </button>
+</ion-fab>
+<ion-fab class="search-code-fab" right bottom>
+  <button ion-fab (click)="showSearchByCode()" color="lightgray">
+    <ion-icon name="calculator"></ion-icon>
+  </button>
+</ion-fab>

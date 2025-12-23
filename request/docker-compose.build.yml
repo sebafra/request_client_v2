@@ -1,0 +1,9 @@
+version: '3'
+services:
+  ionic-app:
+    extends:
+      file: docker-compose.base.yml
+      service: ionic-app
+    container_name: request_ionic_build
+    tty: true
+    platform: linux/amd64

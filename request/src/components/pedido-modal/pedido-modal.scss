@@ -1,0 +1,43 @@
+.show-page {
+    padding: 5% 10% 10% 10%;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+pedido-modal {
+    .scroll-content {
+        // margin-top: 10px !important;
+   
+    }
+
+    .toolbar-background {
+        background: transparent !important;
+    }
+
+    .header::after {
+        background-image: none !important;
+    } // background: rgba(0, 0, 0, 0.5);
+    background: color($colors, primary);
+
+    .header::after {
+        background-image: none;
+    }
+
+    .content {
+        background-color: color($colors, primary);
+
+        .item {
+            .text-input {
+                font-size: 1.5em;
+                color: color($colors, white);
+                text-align: center;
+            }
+        }
+
+        .waiter-item {
+            background: transparent;
+            border: 1px solid color($colors, dark);
+            color: color($colors, dark);
+            text-align: center;
+        }
+    }
+}

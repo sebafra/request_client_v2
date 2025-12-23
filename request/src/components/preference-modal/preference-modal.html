@@ -1,0 +1,47 @@
+<!-- Generated template for the PreferenceModalComponent component -->
+<ion-header>
+  <ion-navbar>
+    <ion-title><span ion-text color="light">
+        <ion-icon name="paper" color="light"></ion-icon>
+        Preferencias
+      </span></ion-title>
+    <ion-buttons start>
+      <button ion-button color="white" (click)="dismiss(false)">
+        <span ion-text color="white" showWhen="ios">Cerrar</span>
+        <ion-icon name="md-close" showWhen="android"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+<ion-content padding>
+  <!-- <ion-list>
+      <ion-item no-lines>
+        <ion-label stacked>Agregue una preferencia</ion-label>
+        <ion-input 
+        [(ngModel)]="customPreference" 
+        type="text" 
+        [ngModelOptions]="{standalone: true}" 
+        (keyup.enter)="goNext()" 
+        name="customPreference"></ion-input>
+          <ion-icon name="add" item-end (click)="addPreference()"></ion-icon>
+      </ion-item>
+    </ion-list> -->
+  <ion-list>
+    <ion-item no-lines>
+      <ion-label stacked>Agregue una preferencia</ion-label>
+      <ion-input [(ngModel)]="customPreference" type="text" [ngModelOptions]="{standalone: true}" (keyup.enter)="addPreference()"
+        name="customPreference"></ion-input>
+      <button ion-button clear icon-only item-end (click)="addPreference()">
+        <ion-icon color="white" name="add"></ion-icon>
+      </button>
+    </ion-item>
+  </ion-list>
+  <ion-grid>
+    <ion-row text-nowrap class="preferences">
+      <button *ngFor="let item of preferences" ion-button small [outline]="item.selected != true" round color="white" [hidden]="item.description == 0" (click)="selectPreference(item)">{{item.description}}</button>
+    </ion-row>
+    <ion-row>
+      <button ion-button block color="primary" (click)="dismiss(false)">Guardar</button>
+    </ion-row>
+  </ion-grid>
+</ion-content>

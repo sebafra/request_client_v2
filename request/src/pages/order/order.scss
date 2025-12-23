@@ -1,0 +1,28 @@
+page-order {
+    .badge {
+        font-size: 3rem;
+        font-weight: 400;
+        color: white;
+
+        &.combo {
+            font-size: .7em;
+            border: 1px solid color($colors, primary);
+            color: color($colors, primary);
+            background: none;
+
+            &.completed {
+                color: white;
+                background: color($colors, primary);
+            }
+        }
+    }
+
+    ion-fab {
+        bottom: 70px !important;
+
+        // .button {
+        //     background: green;
+        // }
+   
+    }
+}

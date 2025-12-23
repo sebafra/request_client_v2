@@ -1,0 +1,59 @@
+<!-- Generated template for the ComboModalComponent component -->
+<div>
+  {{text}}
+</div>
+
+<ion-header>
+  <ion-navbar>
+    <ion-title><span ion-text color="light">
+        <ion-icon name="grid" color="light"></ion-icon>
+        Editar Combo
+      </span></ion-title>
+    <ion-buttons start>
+      <button ion-button color="white" (click)="dismiss(false)">
+        <span ion-text color="white" showWhen="ios">Cerrar</span>
+        <ion-icon name="md-close" showWhen="android"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+<ion-content padding>
+  <ion-item [hidden]="!isBusy" no-lines text-center class="transparent">
+    <ion-spinner name="dots" color="dark"></ion-spinner>
+  </ion-item>
+  <ion-list [hidden]="isBusy" *ngIf="group_1.length > 0">
+    <ion-item *ngFor="let item of group_1" margin-top no-lines>
+      <h2 color="white" ion-text>{{item?.article?.name}}</h2>
+      <ion-icon name="checkmark" color="success" item-right></ion-icon>
+    </ion-item>
+  </ion-list>
+  <ion-list [hidden]="isBusy">
+    <ion-item *ngIf="groups?.group_2_ud != 0" margin-top no-lines>
+      <ion-label color="white" stacked>{{groups?.group_2_name}}</ion-label>
+      <ion-select okText="Guardar" cancelText="Volver" [(ngModel)]="group_val_2" [multiple]="groups?.group_2_ud > 1">
+        <ion-option *ngFor="let item of group_2" [value]="item.article_id">{{item?.article?.name}}</ion-option>
+      </ion-select>
+    </ion-item>
+    <ion-item *ngIf="groups?.group_3_ud != 0" margin-top no-lines>
+      <ion-label color="white" stacked>{{groups?.group_3_name}}</ion-label>
+      <ion-select okText="Guardar" cancelText="Volver" [(ngModel)]="group_val_3" [multiple]="groups?.group_3_ud > 1">
+        <ion-option *ngFor="let item of group_3" [value]="item.article_id">{{item?.article?.name}}</ion-option>
+      </ion-select>
+    </ion-item>
+    <ion-item *ngIf="groups?.group_4_ud != 0" margin-top no-lines>
+      <ion-label color="white" stacked>{{groups?.group_4_name}}</ion-label>
+      <ion-select okText="Guardar" cancelText="Volver" [(ngModel)]="group_val_4" [multiple]="groups?.group_4_ud > 1">
+        <ion-option *ngFor="let item of group_4" [value]="item.article_id">{{item?.article?.name}}</ion-option>
+      </ion-select>
+    </ion-item>
+    <ion-item *ngIf="groups?.group_5_ud != 0" margin-top no-lines>
+      <ion-label color="white" stacked>{{groups?.group_5_name}}</ion-label>
+      <ion-select okText="Guardar" cancelText="Volver" [(ngModel)]="group_val_5" [multiple]="groups?.group_5_ud > 1">
+        <ion-option *ngFor="let item of group_5" [value]="item.article_id">{{item?.article?.name}}</ion-option>
+      </ion-select>
+    </ion-item>
+  </ion-list>
+</ion-content>
+<ion-footer padding>
+  <button ion-button block color="dark" (click)="processCombo()">Aplicar</button>
+</ion-footer>

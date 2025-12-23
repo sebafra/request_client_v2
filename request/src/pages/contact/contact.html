@@ -1,0 +1,52 @@
+<ion-content padding>
+  <ion-grid class="logo-container">
+    <ion-row margin-bottom margin-top>
+      <ion-col offset-2 col-8 text-center>
+        <img src="assets/imgs/logo.png" alt="">
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+      <ion-item *ngIf="waiterObj.name !== ''">
+        <ion-icon name="body" color="light" icon-left></ion-icon>
+        {{waiterObj.name}}
+      </ion-item>
+  <ion-list *ngIf="waiterObj.name == ''">
+    <ion-item margin-top no-lines>
+      <ion-label fixed>
+        <ion-icon name="person" color="primary"></ion-icon>
+      </ion-label>
+      <ion-input 
+      (keyup.enter)="login()" 
+      [(ngModel)]="waiter" 
+      type="number" 
+      placeholder="Ingrese Nº de vendedor" 
+      [ngModelOptions]="{standalone: true}"
+      (ngModelChange)="change($event)"
+      name="waiter"
+      ></ion-input>
+    </ion-item>
+    <!-- <ion-item margin-top no-lines>
+      <ion-label fixed>
+        <ion-icon name="ios-wifi" color="primary"></ion-icon>
+      </ion-label>
+      <ion-input [(ngModel)]="ip" type="text" placeholder="Ingrese la IP del servidor"></ion-input>
+    </ion-item> -->
+  </ion-list>
+  <div margin-top margin-bottom></div>
+  <button *ngIf="waiterObj.name == ''" ion-button block (click)="login()">Iniciar Sesión</button>
+  <button *ngIf="waiterObj.name !== ''" ion-button block (click)="logout()">Cerrar Sesión</button>
+  <button *ngIf="waiterObj.name !== ''" ion-button block color="light" (click)="back()">Volver</button>
+  <div margin-top margin-bottom></div>
+  <button ion-button icon-left block clear (click)="showSettings()">
+    <ion-icon name="settings" color="lightgray"></ion-icon>
+    <span ion-text color="lightgray">Opciones de Configuración</span>
+  </button>
+</ion-content>
+<ion-footer>
+  <ion-grid>
+    <ion-col offset-2 col-8 text-center>
+      <!-- <span ion-text color="light">{{constants.BUSINESS_NAME}} - {{constants.BUSINESS_BRANCH}} - v{{version}}</span> -->
+      <span ion-text color="light">v{{version}}</span>
+    </ion-col>
+  </ion-grid>
+</ion-footer>

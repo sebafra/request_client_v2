@@ -1,0 +1,67 @@
+@use "font-awesome/scss/font-awesome" with ($fa-font-path: "~font-awesome/fonts"
+);
+@use 'theme/food-icon';
+
+/*
+ * App Global CSS
+ * ----------------------------------------------------------------------------
+ * Put style rules here that you want to apply globally. These styles are for
+ * the entire app and not just one component. Additionally, this file can be
+ * used as an entry point to import other CSS/Sass files to be included in the
+ * output CSS.
+ * For more information on global stylesheets, visit the documentation:
+ * https://ionicframework.com/docs/layout/global-stylesheets
+ */
+
+/* Core CSS required for Ionic components to work properly */
+@use "@ionic/angular/css/core.css";
+
+/* Basic CSS for apps built with Ionic */
+@use "@ionic/angular/css/normalize.css";
+@use "@ionic/angular/css/structure.css";
+@use "@ionic/angular/css/typography.css";
+@use "@ionic/angular/css/display.css";
+
+/* Optional CSS utils that can be commented out */
+@use "@ionic/angular/css/padding.css";
+@use "@ionic/angular/css/float-elements.css";
+@use "@ionic/angular/css/text-alignment.css";
+@use "@ionic/angular/css/text-transformation.css";
+@use "@ionic/angular/css/flex-utils.css";
+
+/**
+ * Ionic Dark Mode
+ * -----------------------------------------------------
+ * For more info, please see:
+ * https://ionicframework.com/docs/theming/dark-mode
+ */
+
+/* @use "@ionic/angular/css/palettes/dark.always.css"; */
+/* @use "@ionic/angular/css/palettes/dark.class.css"; */
+/* @use "@ionic/angular/css/palettes/dark.system.css"; */
+
+/* Legacy Styles Migration */
+.popover-content {
+    top: 60.5px !important;
+    right: 0 !important;
+    left: inherit !important;
+    background: var(--ion-color-primary) !important;
+    /* Adapted for CSS vars */
+    width: 200px !important;
+    transform-origin: right top !important;
+
+    .item {
+        background: transparent;
+    }
+
+    .list-header {
+        background: var(--ion-color-secondary);
+        /* Adapted */
+        margin-bottom: 0;
+
+        .label {
+            color: white;
+            font-weight: bold;
+        }
+    }
+}

@@ -1,0 +1,42 @@
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>Resumen de la Orden</ion-title>
+    <!-- <ion-buttons end>
+      <button ion-button (click)="sendCart()">
+        <ion-icon name="md-checkmark" color="secondary" style="font-size: 2em;"></ion-icon>
+      </button>
+    </ion-buttons> -->
+  </ion-navbar>
+</ion-header>
+
+<ion-content>
+  <ion-item text-center [hidden]="!isBusy">
+    <ion-spinner></ion-spinner>
+  </ion-item>
+    <ion-item text-center [hidden]="isBusy || articles.length > 0" no-lines style="background: transparent">
+      <ion-icon color="lightgray" name="color-fill"></ion-icon>
+      <span ion-text color="lightgray">No hay artículos cargados</span>
+    </ion-item>
+  <ion-list>
+    <div *ngFor="let item of articles" [hidden]="item?.quantity == 0">
+      <ion-item [hidden]="item?.combo == true" text-wrap (click)="showOptions(item)">
+        <ion-badge item-left margin-right color="primary">{{item?.quantity}}</ion-badge>
+        <h2>{{item?.name}}</h2>
+        <p *ngIf="item?.preference?.length > 0">Tiene Preferencias</p>
+        <ion-icon name="more" item-end></ion-icon>
+      </ion-item>
+      <ion-item *ngFor="let el of item.combos" text-wrap (click)="showOptions(el)">
+        <ion-badge item-left margin-right color="primary">{{el?.quantity}}</ion-badge>
+        <h2>{{el?.name}}<ion-badge class="combo" [ngClass]="{'completed': el?.combo_detail}">COMBO</ion-badge></h2>
+        <p *ngIf="el?.preference?.length > 0">Tiene Preferencias</p>
+        <ion-icon name="more" item-end></ion-icon>
+      </ion-item>
+    </div>
+  </ion-list>
+</ion-content>
+<ion-fab [hidden]="articles.length == 0" right bottom>
+  <button ion-fab (click)="sendOrder()" color="success">
+    <ion-icon name="checkmark"></ion-icon>
+  </button>
+</ion-fab>

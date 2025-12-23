@@ -1,0 +1,80 @@
+.login-content {
+    --background: transparent;
+}
+
+.login-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: url('../../assets/imgs/fondo.jpg');
+    background-color: #444444;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: multiply;
+    z-index: 0;
+}
+
+.login-container {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    //height: 100%;
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+.logo-container {
+    position: relative;
+    z-index: 2;
+    margin-top: 3em;
+}
+
+.logo-img {
+    width: 250px;
+    height: auto;
+    margin: 0 auto;
+    display: block;
+}
+
+/* Transparent List Styles */
+.transparent-list {
+    background: transparent !important;
+    padding: 0;
+}
+
+.input-item {
+    margin-bottom: 15px;
+    border-radius: 8px;
+    /* Transparencia para que se vea el fondo pero sea legible */
+    --background: rgba(255, 255, 255, 0.9);
+    --border-radius: 8px;
+    --padding-start: 10px;
+    color: black;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+ion-input {
+    --padding-start: 10px;
+}
+
+h1 {
+    color: white;
+    margin-bottom: 2em;
+    font-weight: 600;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Footer */
+.transparent-footer {
+    --background: transparent;
+    background: transparent;
+}
+
+.transparent-footer ion-text {
+    font-size: 0.8rem;
+    opacity: 0.8;
+}

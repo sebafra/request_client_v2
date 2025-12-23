@@ -1,0 +1,14 @@
+page-contact {
+    ion-content {
+        background-image: url("../assets/imgs/fondo.jpg");
+        background-color: #444444 !important;
+        background-size: cover;
+        background-position-x: center;
+        background-blend-mode: multiply;
+
+        .logo-container {
+            margin-top: 5em;
+            margin-bottom: 5em;
+        }
+    }
+}

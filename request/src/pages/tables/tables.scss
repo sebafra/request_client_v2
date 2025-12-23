@@ -1,0 +1,42 @@
+page-tables {
+    .grid {
+        padding: 5px;
+
+        .col {
+            //align-items: center;
+
+            .table-inner {
+                height: 100px;
+                // background: color($colors, gray);
+                // color: color($colors, primary);
+                background: rgb(0, 184, 0);
+                color: white;
+                border-radius: 10px;
+                text-align: center;
+                padding-top: 15px;
+
+                h1 {
+                    font-size: 1.6em;
+                    border-bottom: 1px solid lightgray;
+                    padding-bottom: .2em;
+                    margin-bottom: 0;
+                }
+
+                p {
+                    margin-bottom: .5em;
+                    margin-top: .3em;
+                }
+
+                &.prefac {
+                    background: fuchsia;
+                    color: white;
+                }
+
+                &.pay {
+                    background: red;
+                    color: white;
+                }
+            }
+        }
+    }
+}

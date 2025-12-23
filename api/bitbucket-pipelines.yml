@@ -1,0 +1,35 @@
+# Author: DinoCloud
+# Description: Pipeline for component mobile app api.
+
+pipelines:
+  branches:
+      develop:
+        - step:
+            name: Deploying to staging
+            image: python:2.7
+            deployment: staging
+            script:
+              - git submodule add git@bitbucket.org:sistemasautocity/automation_toolkit.git
+              - cp -rf automation_toolkit/ansible/ .
+              - cp -rf automation_toolkit/pipeline/ .
+              - export ENVIRONMENT=staging
+              - chmod ugo+x ./pipeline/deploy.sh
+              - ./pipeline/deploy.sh
+        - step:
+            name: Deploying to production
+            image: python:2.7
+            deployment: production
+            trigger: manual
+            script:
+              - git fetch origin "+refs/heads/*:refs/remotes/origin/*"
+              - git branch -a
+              - git branch master origin/master
+              - git checkout master && git pull origin master
+              - git rebase develop
+              - git push origin master
+              - git submodule add git@bitbucket.org:sistemasautocity/automation_toolkit.git
+              - cp -rf automation_toolkit/ansible/ .
+              - cp -rf automation_toolkit/pipeline/ .
+              - export ENVIRONMENT=production
+              - chmod ugo+x ./pipeline/deploy.sh
+              - ./pipeline/deploy.sh

@@ -1,0 +1,8 @@
+version: '3'
+services:
+  ionic-app:
+    extends:
+      file: docker-compose.base.yml
+      service: ionic-app
+    container_name: request_ionic_dev
+    command: ionic serve --address 0.0.0.0 --live-reload

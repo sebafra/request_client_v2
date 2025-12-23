@@ -1,0 +1,35 @@
+page-table {
+    .quantity {
+        font-size: 3rem;
+        font-weight: 400;
+        color: white;
+    }
+
+    .table-status {
+        text-align: center;
+        min-height: 35px !important;
+        color: white;
+        font-weight: bold;
+
+        .toolbar-background {
+            background-color: rgb(0, 184, 0);
+        }
+
+        &.prefac {
+            .toolbar-background {
+                background-color: fuchsia;
+            }
+            color: white;
+        }
+
+        &.pay {
+            .toolbar-background {
+                background-color: red;
+            }
+            color: white;
+        }
+    }
+    .time {
+        font-size: .8em;
+    }
+}

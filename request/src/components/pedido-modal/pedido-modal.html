@@ -1,0 +1,42 @@
+<!-- Generated template for the PedidoModalComponent component -->
+<ion-header>
+  <ion-navbar>
+    <ion-title><span ion-text color="light"><ion-icon name="body" color="light"></ion-icon>
+    {{waiter}}</span></ion-title>
+    <ion-buttons start>
+      <button ion-button color="white" (click)="dismiss(false)">
+        <span ion-text color="white" showWhen="ios">Cerrar</span>
+        <ion-icon name="md-close" showWhen="android"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+</ion-header>
+<ion-content padding>
+  <ion-list>
+    <ion-item margin-top no-lines text-center>
+      <ion-label fixed>Mesa</ion-label>
+      <ion-input #myInput [(ngModel)]="table" type="number" [ngModelOptions]="{standalone: true}" (keyup.enter)="goNext()" (ngModelChange)="changeTable($event)"
+      name="table"></ion-input>
+    </ion-item>
+    <ion-item margin-top no-lines text-center>
+      <ion-label fixed>Cubiertos</ion-label>
+      <ion-input #myInput2 [(ngModel)]="people" type="number" (keyup.enter)="dismiss(true)" [ngModelOptions]="{standalone: true}" (ngModelChange)="changePeople($event)"
+      name="people"></ion-input>
+    </ion-item>
+  </ion-list>
+  <ion-grid>
+    <ion-row *ngIf="!busy">
+      <ion-col col-6>
+        <button ion-button block color="lightgray" (click)="dismiss(false)">Cancelar</button>
+      </ion-col>
+      <ion-col col-6>
+        <button ion-button block color="dark" (click)="dismiss(true)">Enviar</button>
+      </ion-col>
+    </ion-row>
+    <ion-row *ngIf="busy">  
+      <ion-col col-12>
+        <button ion-button block color="dark" disabled ><ion-spinner name="dots" color="white"></ion-spinner>  Enviando Pedido</button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>

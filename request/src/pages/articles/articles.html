@@ -1,0 +1,41 @@
+<!--
+  Generated template for the ArticlesPage page.
+
+  See http://ionicframework.com/docs/components/#navigation for more info on
+  Ionic pages and navigation.
+-->
+<ion-header>
+
+  <ion-navbar>
+    <ion-title>{{title}}</ion-title>
+    <ion-buttons end>
+      <button ion-button icon-only (click)="showInfo()">
+        <ion-icon color="primary" name="md-information-circle"></ion-icon>
+      </button>
+      <button ion-button icon-only (click)="filter()">
+        <ion-icon color="primary" name="funnel"></ion-icon>
+      </button>
+    </ion-buttons>
+  </ion-navbar>
+    <ion-searchbar *ngIf="!searchTerm" [(ngModel)]="textSearch" (search)="searchArticles($event)"
+      (ionClear)="searchClear($event)" [showCancelButton]="shouldShowCancel" placeholder="Buscar por nombre">
+    </ion-searchbar>
+  <!-- <ion-searchbar *ngIf="!searchTerm" [(ngModel)]="textSearch" (ionInput)="searchArticles($event)" (search)="searchArticles($event)" [showCancelButton]="shouldShowCancel" placeholder="Buscar por nombre"></ion-searchbar> -->
+</ion-header>
+
+<ion-content>
+  <ion-item text-center [hidden]="!isBusy" no-lines>
+    <ion-spinner name="dots" color="primary"></ion-spinner>
+  </ion-item>
+  <ion-item text-center *ngIf="!isBusy && articles_filtered.length == 0" no-lines>
+    <ion-icon color="light" name="color-fill"></ion-icon>
+    <span ion-text color="light" margin-left>No hay artículos para mostrar</span>
+  </ion-item>
+  <ion-list [hidden]="isBusy">
+    <ion-item ion-long-press *ngFor="let item of articles_filtered" (tap)="tapEvent(item)" (swipe)="swipeEvent(item)">
+      <ion-badge item-left color="primary" [hidden]="item.quantity == 0">{{item.quantity}}</ion-badge>
+      <h2>{{item.name}}</h2>
+      <p>{{item.category.name}} {{item.subcategory.name}} <ion-badge class="combo" *ngIf="item.combo">COMBO</ion-badge></p>
+    </ion-item>
+  </ion-list>
+</ion-content>

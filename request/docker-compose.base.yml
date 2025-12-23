@@ -1,0 +1,11 @@
+version: '3'
+services:
+  ionic-app:
+    build: .
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "8100:8100"
+    environment:
+      - ANDROID_HOME=/opt/android-sdk

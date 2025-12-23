@@ -1,0 +1,45 @@
+<ion-header>
+    <ion-toolbar>
+        <ion-title>Resumen de Orden</ion-title>
+        <ion-buttons slot="end">
+            @if (orderService.cartCount() > 0) {
+            <ion-button (click)="orderService.clearCart()">
+                <ion-icon slot="icon-only" name="trash" color="medium"></ion-icon>
+            </ion-button>
+            }
+        </ion-buttons>
+    </ion-toolbar>
+</ion-header>
+
+<ion-content>
+    @if (orderService.cartCount() === 0) {
+    <div class="empty-state ion-text-center ion-padding">
+        <ion-icon name="cart-outline" class="empty-icon"></ion-icon>
+        <p>Tu pedido está vacío</p>
+    </div>
+    } @else {
+    <ion-list>
+        @for (item of orderService.cart(); track item.id) {
+        <ion-item button (click)="showOptions(item, $index)">
+            <ion-badge slot="start" color="primary">{{ item.quantity || 1 }}</ion-badge>
+            <ion-label class="ion-text-wrap">
+                <h2>{{ item.name }}</h2>
+                @if (item.preference) {
+                <p>Nota: {{ item.preference }}</p>
+                }
+                <!-- <p class="price">\${{ item.price }}</p> -->
+            </ion-label>
+            <ion-icon slot="end" name="ellipsis-horizontal" color="medium"></ion-icon>
+        </ion-item>
+        }
+    </ion-list>
+    }
+
+    @if (orderService.cartCount() > 0) {
+    <ion-fab vertical="bottom" horizontal="end" slot="fixed">
+        <ion-fab-button (click)="sendOrder()" color="success">
+            <ion-icon name="checkmark"></ion-icon>
+        </ion-fab-button>
+    </ion-fab>
+    }
+</ion-content>
