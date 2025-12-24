@@ -196,22 +196,23 @@ export class ComboModalComponent implements OnInit {
     // Obtener configuración COMBO_COMPLETE
     const comboComplete = localStorage.getItem('REQUEST_COMBO_COMPLETE') || 'false';
 
-    // Validaciones según COMBO_COMPLETE
+    // Validaciones según COMBO_COMPLETE (igual que legacy)
     if (comboComplete === 'true') {
       // Debe seleccionar exactamente la cantidad requerida
-      if (this.groups && this.groups.group_2_ud > 0 && arr[1].length !== this.groups.group_2_ud) {
+      // Si group_X_ud = 0, valida que no se seleccione nada (arr[X].length debe ser 0)
+      if (this.groups && arr[1].length !== this.groups.group_2_ud) {
         this.showError(`Debe seleccionar ${this.groups.group_2_ud} ud en ${this.groups.group_2_name}`);
         return;
       }
-      if (this.groups && this.groups.group_3_ud > 0 && arr[2].length !== this.groups.group_3_ud) {
+      if (this.groups && arr[2].length !== this.groups.group_3_ud) {
         this.showError(`Debe seleccionar ${this.groups.group_3_ud} ud en ${this.groups.group_3_name}`);
         return;
       }
-      if (this.groups && this.groups.group_4_ud > 0 && arr[3].length !== this.groups.group_4_ud) {
+      if (this.groups && arr[3].length !== this.groups.group_4_ud) {
         this.showError(`Debe seleccionar ${this.groups.group_4_ud} ud en ${this.groups.group_4_name}`);
         return;
       }
-      if (this.groups && this.groups.group_5_ud > 0 && arr[4].length !== this.groups.group_5_ud) {
+      if (this.groups && arr[4].length !== this.groups.group_5_ud) {
         this.showError(`Debe seleccionar ${this.groups.group_5_ud} ud en ${this.groups.group_5_name}`);
         return;
       }

@@ -30,7 +30,7 @@ import { CategoryService } from '../core/services/category.service';
 import { OrderService } from '../core/services/order.service';
 import { SubcategoryService } from '../core/services/subcategory.service';
 import { addIcons } from 'ionicons';
-import { cart, arrowBack, search, funnel, informationCircle, add, remove, trash, cubeOutline, layers } from 'ionicons/icons';
+import { cart, arrowBack, search, funnel, funnelOutline, informationCircle, add, remove, trash, cubeOutline, layers } from 'ionicons/icons';
 import { FilterPopoverComponent } from '../components/filter-popover/filter-popover.component';
 
 @Component({
@@ -76,6 +76,7 @@ export class ArticlesPage implements OnInit {
   articles = signal<any[]>([]);
   filteredArticles = signal<any[]>([]);
   subcategories = signal<any[]>([]);
+  selectedSubcategory = signal<any | null>(null); // Trackear subcategoría seleccionada
   title = 'Artículos';
   isBusy = false;
   searchText = '';
@@ -85,7 +86,7 @@ export class ArticlesPage implements OnInit {
   searchType: 'name' | 'code' | null = null;
 
   constructor() {
-    addIcons({ cart, arrowBack, search, funnel, informationCircle, add, remove, trash, cubeOutline, layers });
+    addIcons({ cart, arrowBack, search, funnel, funnelOutline, informationCircle, add, remove, trash, cubeOutline, layers });
   }
 
   ngOnInit() {
@@ -94,6 +95,7 @@ export class ArticlesPage implements OnInit {
       this.articles.set([]);
       this.filteredArticles.set([]);
       this.subcategories.set([]);
+      this.selectedSubcategory.set(null); // Limpiar filtro al cambiar de categoría
       this.searchText = '';
       this.isBusy = true;
       
@@ -220,7 +222,8 @@ export class ArticlesPage implements OnInit {
       component: FilterPopoverComponent,
       event: event,
       componentProps: {
-        subcategories: this.subcategories()
+        subcategories: this.subcategories(),
+        selectedSubcategory: this.selectedSubcategory()
       }
     });
 
@@ -236,6 +239,9 @@ export class ArticlesPage implements OnInit {
   }
 
   filterBySubcategory(subcategory: any) {
+    // Actualizar la subcategoría seleccionada
+    this.selectedSubcategory.set(subcategory);
+    
     if (!subcategory) {
       this.filteredArticles.set(this.articles());
     } else {

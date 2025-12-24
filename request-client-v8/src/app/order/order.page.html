@@ -24,7 +24,7 @@
                 <!-- Mostrar combos expandidos -->
                 @for (combo of item.combos; track combo.order_number; let comboIndex = $index) {
                 <ion-item button (click)="showOptions(combo, itemIndex, comboIndex)">
-                    <ion-badge slot="start" color="primary">1</ion-badge>
+                    <ion-badge class="quantity-badge" slot="start" color="primary">{{ combo.quantity || 1 }}</ion-badge>
                     <ion-label class="ion-text-wrap">
                         <h2>
                             {{ combo.name }}
@@ -45,7 +45,7 @@
             } @else {
                 <!-- Artículo normal -->
                 <ion-item button (click)="showOptions(item, itemIndex)">
-                    <ion-badge slot="start" color="primary">{{ item.quantity || 1 }}</ion-badge>
+                    <ion-badge class="quantity-badge" slot="start" color="primary">{{ item.quantity || 1 }}</ion-badge>
                     <ion-label class="ion-text-wrap">
                         <h2>{{ item.name }}</h2>
                         @if (item.preference) {
@@ -57,7 +57,6 @@
                         }
                         <!-- <p class="price">\${{ item.price }}</p> -->
                     </ion-label>
-                    <ion-icon slot="end" name="ellipsis-horizontal" color="medium"></ion-icon>
                 </ion-item>
             }
         }

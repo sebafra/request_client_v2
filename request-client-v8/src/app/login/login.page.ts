@@ -20,6 +20,7 @@ import {
 import { addIcons } from 'ionicons';
 import { person, key, settings } from 'ionicons/icons';
 import { WaiterService } from '../core/services/waiter.service';
+import { APP_VERSION } from '../app.constants';
 
 @Component({
   selector: 'app-login',
@@ -91,7 +92,7 @@ import { WaiterService } from '../core/services/waiter.service';
 })
 export class LoginPage {
   username = '';
-  version = '1.0.0'; // Should ideally come from constants
+  version = APP_VERSION; // Should ideally come from constants
   password = ''; // Legacy didn't use password for waiter login, just ID
   private navCtrl = inject(NavController);
 
