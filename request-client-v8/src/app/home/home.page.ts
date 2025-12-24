@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ViewEncapsulation } from '@angular/core';
 import { 
   IonHeader, 
   IonToolbar, 
@@ -26,6 +26,7 @@ import { CommonModule } from '@angular/common';
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
+  encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [
     CommonModule,
@@ -51,7 +52,7 @@ export class HomePage implements OnInit {
 
   categories: Category[] = [];
   isBusy = false;
-  branchName = 'Butter Comanda'; // TODO: Fetch from config
+  branchName = 'Comanda'; // TODO: Fetch from config
 
   constructor() {
     addIcons({ settings, person, search, calculator });
@@ -80,7 +81,7 @@ export class HomePage implements OnInit {
   }
 
   goToSettings() {
-    this.navCtrl.navigateForward('/tabs/settings');
+    this.navCtrl.navigateForward('/settings');
   }
 
   goToLogin() {

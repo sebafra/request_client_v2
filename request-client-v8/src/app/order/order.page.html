@@ -3,8 +3,8 @@
         <ion-title>Resumen de Orden</ion-title>
         <ion-buttons slot="end">
             @if (orderService.cartCount() > 0) {
-            <ion-button (click)="orderService.clearCart()">
-                <ion-icon slot="icon-only" name="trash" color="medium"></ion-icon>
+            <ion-button (click)="confirmClearCart()">
+                <ion-icon slot="icon-only" name="trash" color="primary"></ion-icon>
             </ion-button>
             }
         </ion-buttons>
@@ -14,23 +14,52 @@
 <ion-content>
     @if (orderService.cartCount() === 0) {
     <div class="empty-state ion-text-center ion-padding">
-        <ion-icon name="cart-outline" class="empty-icon"></ion-icon>
+        <ion-icon name="receipt-outline" class="empty-icon"></ion-icon>
         <p>Tu pedido está vacío</p>
     </div>
     } @else {
     <ion-list>
-        @for (item of orderService.cart(); track item.id) {
-        <ion-item button (click)="showOptions(item, $index)">
-            <ion-badge slot="start" color="primary">{{ item.quantity || 1 }}</ion-badge>
-            <ion-label class="ion-text-wrap">
-                <h2>{{ item.name }}</h2>
-                @if (item.preference) {
-                <p>Nota: {{ item.preference }}</p>
+        @for (item of orderService.cart(); track item.id; let itemIndex = $index) {
+            @if (item.combo && item.combos) {
+                <!-- Mostrar combos expandidos -->
+                @for (combo of item.combos; track combo.order_number; let comboIndex = $index) {
+                <ion-item button (click)="showOptions(combo, itemIndex, comboIndex)">
+                    <ion-badge slot="start" color="primary">1</ion-badge>
+                    <ion-label class="ion-text-wrap">
+                        <h2>
+                            {{ combo.name }}
+                        </h2>
+                        @if (combo.preference) {
+                            @if (isArray(combo.preference) && combo.preference.length > 0) {
+                                <p>Nota: {{ getPreferenceText(combo.preference) }}</p>
+                            } @else if (typeof combo.preference === 'string' && combo.preference.length > 0) {
+                                <p>Nota: {{ combo.preference }}</p>
+                            }
+                        }
+                    </ion-label>
+                    <ion-chip slot="end" class="combo-chip">
+                        <ion-icon name="layers" [color]="combo.combo_detail ? 'secondary' : 'medium'"></ion-icon>
+                    </ion-chip>
+                </ion-item>
                 }
-                <!-- <p class="price">\${{ item.price }}</p> -->
-            </ion-label>
-            <ion-icon slot="end" name="ellipsis-horizontal" color="medium"></ion-icon>
-        </ion-item>
+            } @else {
+                <!-- Artículo normal -->
+                <ion-item button (click)="showOptions(item, itemIndex)">
+                    <ion-badge slot="start" color="primary">{{ item.quantity || 1 }}</ion-badge>
+                    <ion-label class="ion-text-wrap">
+                        <h2>{{ item.name }}</h2>
+                        @if (item.preference) {
+                            @if (isArray(item.preference) && item.preference.length > 0) {
+                                <p>Nota: {{ getPreferenceText(item.preference) }}</p>
+                            } @else if (typeof item.preference === 'string' && item.preference.length > 0) {
+                                <p>Nota: {{ item.preference }}</p>
+                            }
+                        }
+                        <!-- <p class="price">\${{ item.price }}</p> -->
+                    </ion-label>
+                    <ion-icon slot="end" name="ellipsis-horizontal" color="medium"></ion-icon>
+                </ion-item>
+            }
         }
     </ion-list>
     }

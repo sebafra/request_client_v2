@@ -1,9 +1,25 @@
-.price {
-    font-weight: bold;
-    color: var(--ion-color-success);
-}
+/* Estilos encapsulados para la página de artículos */
+app-articles {
+    .price {
+        font-weight: bold;
+        color: var(--ion-color-success);
+    }
 
-ion-badge {
-    padding: 6px 10px;
-    font-size: 0.9rem;
+    ion-badge {
+        padding: 6px 10px;
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        margin-top: 50px;
+        color: var(--ion-color-medium);
+
+        ion-icon.empty-icon {
+            font-size: 10rem !important;
+            margin-bottom: 20px;
+            opacity: 0.28 !important;
+            color: var(--ion-color-step-400, #999999) !important;
+            --color: var(--ion-color-step-400, #999999) !important;
+        }
+    }
 }

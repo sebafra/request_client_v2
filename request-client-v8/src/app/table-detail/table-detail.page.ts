@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { 
   IonContent, 
@@ -20,12 +20,13 @@ import { Router } from '@angular/router';
 import { OrderService } from '../core/services/order.service';
 import { Table } from '../core/models/table.interface';
 import { addIcons } from 'ionicons';
-import { time, arrowBack } from 'ionicons/icons';
+import { time, arrowBack, restaurantOutline } from 'ionicons/icons';
 
 @Component({
   selector: 'app-table-detail',
   templateUrl: './table-detail.page.html',
   styleUrls: ['./table-detail.page.scss'],
+  encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [
     CommonModule,
@@ -54,7 +55,7 @@ export class TableDetailPage implements OnInit {
   isBusy = false;
 
   constructor() {
-    addIcons({ time, arrowBack });
+    addIcons({ time, arrowBack, restaurantOutline });
     
     // Get table from navigation state
     const navigation = this.router.getCurrentNavigation();

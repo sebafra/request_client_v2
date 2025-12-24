@@ -15,10 +15,12 @@ import {
   IonNote, 
   IonButton, 
   IonToggle,
+  IonButtons,
+  NavController,
   ToastController 
 } from '@ionic/angular/standalone';
 import { addIcons } from 'ionicons';
-import { wifi, moon, sunny, mail } from 'ionicons/icons';
+import { wifi, moon, sunny, mail, arrowBack } from 'ionicons/icons';
 import { ThemeService } from '../core/services/theme.service';
 
 @Component({
@@ -41,12 +43,14 @@ import { ThemeService } from '../core/services/theme.service';
     IonInput, 
     IonNote, 
     IonButton, 
-    IonToggle
+    IonToggle,
+    IonButtons
   ]
 })
 export class SettingsPage implements OnInit {
   private toastCtrl = inject(ToastController);
   public themeService = inject(ThemeService);
+  private navCtrl = inject(NavController);
 
   ipAddress = '';
   // darkMode handled by themeService
@@ -56,7 +60,11 @@ export class SettingsPage implements OnInit {
   currentIp = '';
 
   constructor() {
-    addIcons({ wifi, moon, sunny, mail });
+    addIcons({ wifi, moon, sunny, mail, arrowBack });
+  }
+
+  goBack() {
+    this.navCtrl.back();
   }
 
   ngOnInit() {
@@ -92,5 +100,9 @@ export class SettingsPage implements OnInit {
       position: 'top'
     });
     await toast.present();
+  }
+
+  openEmail() {
+    window.open('mailto:info@butterlabs.com.ar', '_blank');
   }
 }

@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { 
@@ -21,7 +21,8 @@ import {
   IonBadge,
   NavController, 
   PopoverController, 
-  AlertController 
+  AlertController,
+  IonChip
 } from '@ionic/angular/standalone';
 import { ActivatedRoute } from '@angular/router';
 import { ArticleService } from '../core/services/article.service';
@@ -29,13 +30,14 @@ import { CategoryService } from '../core/services/category.service';
 import { OrderService } from '../core/services/order.service';
 import { SubcategoryService } from '../core/services/subcategory.service';
 import { addIcons } from 'ionicons';
-import { cart, arrowBack, search, funnel, informationCircle, add, remove, trash } from 'ionicons/icons';
+import { cart, arrowBack, search, funnel, informationCircle, add, remove, trash, cubeOutline, layers } from 'ionicons/icons';
 import { FilterPopoverComponent } from '../components/filter-popover/filter-popover.component';
 
 @Component({
   selector: 'app-articles',
   templateUrl: './articles.page.html',
   styleUrls: ['./articles.page.scss'],
+  encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [
     CommonModule, 
@@ -56,7 +58,8 @@ import { FilterPopoverComponent } from '../components/filter-popover/filter-popo
     IonItemOptions, 
     IonItemOption, 
     IonLabel, 
-    IonBadge
+    IonBadge,
+    IonChip
   ]
 })
 export class ArticlesPage implements OnInit {
@@ -82,7 +85,7 @@ export class ArticlesPage implements OnInit {
   searchType: 'name' | 'code' | null = null;
 
   constructor() {
-    addIcons({ cart, arrowBack, search, funnel, informationCircle, add, remove, trash });
+    addIcons({ cart, arrowBack, search, funnel, informationCircle, add, remove, trash, cubeOutline, layers });
   }
 
   ngOnInit() {
@@ -151,7 +154,12 @@ export class ArticlesPage implements OnInit {
   loadSubcategories(catId: string) {
     this.subcategoryService.getAll().subscribe({
       next: (subs) => {
-        const filtered = subs.filter(s => (s.categoryId || s.category) == Number(catId));
+        // Filtrar por categoría y excluir subcategorías con nombre vacío
+        const filtered = subs.filter(s => {
+          const matchesCategory = (s.categoryId || s.category) == Number(catId);
+          const hasName = s.name && s.name.trim().length > 0;
+          return matchesCategory && hasName;
+        });
         this.subcategories.set(filtered);
       }
     });

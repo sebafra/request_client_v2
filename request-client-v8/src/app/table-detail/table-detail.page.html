@@ -2,7 +2,7 @@
     <ion-toolbar>
         <ion-buttons slot="start">
             <ion-button (click)="goBack()">
-                <ion-icon slot="icon-only" name="arrow-back"></ion-icon>
+                <ion-icon slot="icon-only" name="arrow-back" color="primary"></ion-icon>
             </ion-button>
         </ion-buttons>
         <ion-title>Mesa {{ table?.id }}</ion-title>
@@ -23,7 +23,8 @@
     }
 
     @if (!isBusy && orders.length === 0) {
-    <div class="ion-text-center ion-padding">
+    <div class="empty-state ion-text-center ion-padding">
+        <ion-icon name="restaurant-outline" class="empty-icon"></ion-icon>
         <p>No hay pedidos para esta mesa</p>
     </div>
     }

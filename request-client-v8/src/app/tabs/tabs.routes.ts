@@ -28,10 +28,6 @@ export const routes: Routes = [
         loadComponent: () => import('../tables/tables.page').then(m => m.TablesPage),
       },
       {
-        path: 'settings',
-        loadComponent: () => import('../settings/settings.page').then(m => m.SettingsPage),
-      },
-      {
         path: '',
         redirectTo: '/tabs/home',
         pathMatch: 'full',

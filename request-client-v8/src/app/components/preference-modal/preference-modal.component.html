@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      <ion-icon name="document-text" slot="start"></ion-icon>
+      Preferencias
+    </ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="cancel()">
+        <ion-icon slot="icon-only" name="close"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="ion-padding">
+  <ion-list>
+    <ion-item lines="none">
+      <ion-label position="stacked">Agregue una preferencia</ion-label>
+      <ion-input
+        [(ngModel)]="customPreference"
+        type="text"
+        placeholder="Ej: Sin sal"
+        (keyup.enter)="addPreference()"
+        (keypress)="onKeyPress($event)">
+      </ion-input>
+      <ion-button slot="end" fill="clear" (click)="addPreference()">
+        <ion-icon slot="icon-only" name="add"></ion-icon>
+      </ion-button>
+    </ion-item>
+  </ion-list>
+
+  @if (isLoading) {
+    <div class="ion-text-center ion-padding">
+      <ion-spinner></ion-spinner>
+    </div>
+  }
+
+  <ion-grid>
+    <ion-row class="preferences-row">
+      @for (item of preferences; track item.description) {
+        <ion-col size="auto">
+          <ion-button
+            [fill]="item.selected ? 'solid' : 'outline'"
+            size="small"
+            shape="round"
+            (click)="selectPreference(item)">
+            {{ item.description }}
+          </ion-button>
+        </ion-col>
+      }
+    </ion-row>
+    <ion-row>
+      <ion-col>
+        <ion-button expand="block" color="primary" (click)="dismiss()">
+          Guardar
+        </ion-button>
+      </ion-col>
+    </ion-row>
+  </ion-grid>
+</ion-content>
+

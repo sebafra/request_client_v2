@@ -1,0 +1,122 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="dismiss()">
+        <ion-icon slot="icon-only" name="close" color="primary"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>
+      Editar Combo
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  @if (isBusy) {
+  <div class="ion-text-center ion-padding">
+    <ion-spinner></ion-spinner>
+  </div>
+  }
+
+  @if (!isBusy && group_1.length > 0) {
+  <ion-list>
+    @for (item of group_1; track item.article_id) {
+    <ion-item>
+      <ion-label>
+        <h2>{{ item.article?.name }}</h2>
+      </ion-label>
+      <ion-icon name="checkmark" color="success" slot="end"></ion-icon>
+    </ion-item>
+    }
+  </ion-list>
+  }
+
+  @if (!isBusy) {
+  <ion-list>
+    @if (groups && groups.group_2_ud != 0) {
+    <ion-item class="select-item">
+      <ion-select 
+        [(ngModel)]="group_val_2" 
+        [multiple]="groups.group_2_ud > 1"
+        interface="popover"
+        okText="Guardar"
+        cancelText="Volver"
+        [label]="groups.group_2_name"
+        labelPlacement="floating">
+        @for (item of group_2; track item.article_id) {
+        <ion-select-option [value]="item.article_id">
+          {{ item.article?.name }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    }
+
+    @if (groups && groups.group_3_ud != 0) {
+    <ion-item class="select-item">
+      <ion-select 
+        [(ngModel)]="group_val_3" 
+        [multiple]="groups.group_3_ud > 1"
+        interface="popover"
+        okText="Guardar"
+        cancelText="Volver"
+        [label]="groups.group_3_name"
+        labelPlacement="floating">
+        @for (item of group_3; track item.article_id) {
+        <ion-select-option [value]="item.article_id">
+          {{ item.article?.name }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    }
+
+    @if (groups && groups.group_4_ud != 0) {
+    <ion-item class="select-item">
+      <ion-select 
+        [(ngModel)]="group_val_4" 
+        [multiple]="groups.group_4_ud > 1"
+        interface="popover"
+        okText="Guardar"
+        cancelText="Volver"
+        [label]="groups.group_4_name"
+        labelPlacement="floating">
+        @for (item of group_4; track item.article_id) {
+        <ion-select-option [value]="item.article_id">
+          {{ item.article?.name }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    }
+
+    @if (groups && groups.group_5_ud != 0) {
+    <ion-item class="select-item">
+      <ion-select 
+        [(ngModel)]="group_val_5" 
+        [multiple]="groups.group_5_ud > 1"
+        interface="popover"
+        okText="Guardar"
+        cancelText="Volver"
+        [label]="groups.group_5_name"
+        labelPlacement="floating">
+        @for (item of group_5; track item.article_id) {
+        <ion-select-option [value]="item.article_id">
+          {{ item.article?.name }}
+        </ion-select-option>
+        }
+      </ion-select>
+    </ion-item>
+    }
+  </ion-list>
+  }
+</ion-content>
+
+<ion-footer>
+  <ion-toolbar>
+    <ion-button expand="block" (click)="processCombo()" color="primary">
+      Aplicar
+    </ion-button>
+  </ion-toolbar>
+</ion-footer>
+

@@ -46,15 +46,11 @@
     padding: 0;
 }
 
-.input-item {
-    margin-bottom: 15px;
-    border-radius: 8px;
-    /* Transparencia para que se vea el fondo pero sea legible */
-    --background: rgba(255, 255, 255, 0.9);
-    --border-radius: 8px;
-    --padding-start: 10px;
-    color: black;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+/* Adapt input item for dark mode */
+body.dark .input-item {
+    --background: rgba(30, 30, 30, 0.9);
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
 }
 
 ion-input {

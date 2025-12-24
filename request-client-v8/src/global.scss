@@ -65,3 +65,13 @@
         }
     }
 }
+
+/* Alert para mostrar componentes del combo con saltos de línea */
+.combo-components-alert {
+    .alert-message {
+        white-space: pre-line;
+        text-align: left;
+        padding: 16px;
+        line-height: 1.6;
+    }
+}

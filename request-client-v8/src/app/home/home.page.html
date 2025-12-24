@@ -1,14 +1,19 @@
 <ion-header>
   <ion-toolbar>
     <ion-buttons slot="start">
-      <ion-button (click)="goToSettings()">
-        <ion-icon slot="icon-only" name="settings" color="primary"></ion-icon>
-      </ion-button>
     </ion-buttons>
-    <ion-title>{{ branchName }}</ion-title>
+    <ion-title>
+      <div class="title-with-logo">
+        <img src="assets/imgs/iso_short.png" alt="Logo" class="title-logo">
+        <span>{{ branchName }}</span>
+      </div>
+    </ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="goToLogin()">
         <ion-icon slot="icon-only" name="person" color="primary"></ion-icon>
+      </ion-button>
+      <ion-button (click)="goToSettings()">
+        <ion-icon slot="icon-only" name="settings" color="primary"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

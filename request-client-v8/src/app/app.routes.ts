@@ -21,4 +21,9 @@ export const routes: Routes = [
     loadComponent: () => import('./table-detail/table-detail.page').then(m => m.TableDetailPage),
     canActivate: [authGuard]
   },
+  {
+    path: 'settings',
+    loadComponent: () => import('./settings/settings.page').then(m => m.SettingsPage),
+    canActivate: [authGuard]
+  }
 ];

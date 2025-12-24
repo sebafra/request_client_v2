@@ -52,3 +52,16 @@ ion-item {
 ion-label {
     margin-left: 12px;
 }
+
+.empty-state {
+    margin-top: 50px;
+    color: var(--ion-color-medium);
+
+    ion-icon.empty-icon {
+        font-size: 10rem !important;
+        margin-bottom: 20px;
+        opacity: 0.28 !important; /* 30% menos contraste: 0.4 * 0.7 = 0.28 */
+        color: var(--ion-color-step-400, #999999) !important;
+        --color: var(--ion-color-step-400, #999999) !important;
+    }
+}

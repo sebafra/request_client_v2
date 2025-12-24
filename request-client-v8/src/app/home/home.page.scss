@@ -33,31 +33,54 @@
 }
 
 .category-card {
-  height: 25vh;
+  height: 20vh; /* 20% más bajo: 25vh * 0.8 = 20vh */
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  border: 5px solid #191919;
-  background: black;
+  border: none; /* Sin borde */
+  background: #ffffff; /* Fondo blanco en modo claro */
   border-radius: 8px;
   cursor: pointer;
   padding: 15px;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  /* Sombra suave estilo MercadoLibre - 40% más intensa (20% + 20%) */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.115), 0 1px 2px rgba(0, 0, 0, 0.086);
+}
+
+/* Modo oscuro: inversión de colores */
+body.dark .category-card {
+  background: #1a1a1a !important; /* Fondo oscuro - forzar con !important */
+  /* Sombra adaptada para modo oscuro - 40% más intensa (20% + 20%) */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.432), 0 1px 2px rgba(0, 0, 0, 0.288);
 }
 
 .category-name {
   margin-top: 10px;
   font-weight: 500;
   font-size: 0.9rem;
-  color: white;
+  color: var(--ion-text-color);
 }
 
 .action-icon,
 .fa {
-  font-size: 4rem !important;
+  font-size: 3.2rem !important; /* 20% más chico: 4rem * 0.8 = 3.2rem */
   color: var(--ion-color-primary) !important;
 }
 
 ion-fab-button.mb-2 {
   margin-bottom: 10px;
+}
+
+.title-with-logo {
+  display: flex;
+  align-items: center;
+  justify-content: start;
+  gap: 8px; /* Pequeño espacio entre imagen y texto */
+}
+
+.title-logo {
+  height: 2em; /* Mismo tamaño que el texto del título */
+  width: auto;
+  display: block;
 }

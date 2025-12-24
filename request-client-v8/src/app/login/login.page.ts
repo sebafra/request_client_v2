@@ -104,7 +104,7 @@ export class LoginPage {
   }
 
   goToSettings() {
-    this.navCtrl.navigateForward('/tabs/settings');
+    this.navCtrl.navigateForward('/settings');
   }
 
   login() {

@@ -1,15 +1,15 @@
 <ion-header>
     <ion-toolbar>
         <ion-buttons slot="start">
-            <ion-back-button defaultHref="/tabs/home"></ion-back-button>
+            <ion-back-button defaultHref="/tabs/home" color="primary"></ion-back-button>
         </ion-buttons>
         <ion-title>{{ title }}</ion-title>
         <ion-buttons slot="end">
             <ion-button (click)="showInfo()">
-                <ion-icon slot="icon-only" name="information-circle"></ion-icon>
+                <ion-icon slot="icon-only" name="information-circle" color="primary"></ion-icon>
             </ion-button>
             <ion-button (click)="showFilter($event)">
-                <ion-icon slot="icon-only" name="funnel"></ion-icon>
+                <ion-icon slot="icon-only" name="funnel" color="primary"></ion-icon>
             </ion-button>
         </ion-buttons>
     </ion-toolbar>
@@ -36,9 +36,13 @@
                 <ion-label>
                     <h2>{{ item.name }}</h2>
                     <p>{{ item.category?.name }} {{ item.subcategory?.name }}
-                        @if(item.combo){ <ion-badge color="tertiary">COMBO</ion-badge> }
                     </p>
                 </ion-label>
+                @if(item.combo){
+                    <ion-chip slot="end" color="secondary">
+                        <ion-label>COMBO</ion-label>
+                        <ion-icon name="layers"></ion-icon>
+                </ion-chip> }
             </ion-item>
 
             <ion-item-options side="end" (ionSwipe)="removeOne(item, slidingItem)">
@@ -49,9 +53,10 @@
         </ion-item-sliding>
         } @empty {
         @if (!isBusy) {
-        <ion-item lines="none">
-            <ion-label class="ion-text-center">No hay artículos</ion-label>
-        </ion-item>
+        <div class="empty-state ion-text-center ion-padding">
+            <ion-icon name="cube-outline" class="empty-icon"></ion-icon>
+            <p>No hay artículos</p>
+        </div>
         }
         }
     </ion-list>

@@ -19,10 +19,10 @@ var settings = {
     timezone : '-03:00',
     protocol : 'mssql',
     host     : 'intranet01.dyndns.org', //'172.20.16.124'
-    port     :  11438,  //1433,
+    port     :  1436, //11438,
     name     : 'mrccentral',
     username : 'sa',
-    password : 'MLC_2012',
+    password : 'Panicafe2018',//'MLC_2012',
     instanceName: "stk"
   },
   pagging    : {

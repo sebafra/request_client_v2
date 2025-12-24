@@ -2,13 +2,28 @@
     margin-top: 50px;
     color: var(--ion-color-medium);
 
-    .empty-icon {
-        font-size: 4rem;
+    ion-icon.empty-icon {
+        font-size: 10rem !important;
         margin-bottom: 20px;
+        opacity: 0.28 !important; /* 30% menos contraste: 0.4 * 0.7 = 0.28 */
+        color: var(--ion-color-step-400, #999999) !important;
+        --color: var(--ion-color-step-400, #999999) !important;
     }
 }
 
 .price {
     font-weight: 600;
     color: var(--ion-color-dark);
+}
+
+/* Chip para indicar combo */
+ion-chip.combo-chip {
+    height: 28px;
+    padding: 0 8px;
+    margin: 0;
+    
+    ion-icon {
+        margin: 0;
+        font-size: 16px;
+    }
 }

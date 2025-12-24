@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ViewEncapsulation } from '@angular/core';
 import { 
   IonContent, 
   IonHeader, 
@@ -11,22 +11,28 @@ import {
   IonItem, 
   IonLabel, 
   IonBadge, 
+  IonChip,
   IonFab, 
   IonFabButton, 
   ActionSheetController, 
   AlertController, 
   LoadingController, 
   ToastController, 
-  NavController 
+  NavController,
+  ModalController
 } from '@ionic/angular/standalone';
 import { OrderService } from '../core/services/order.service';
+import { PreferenceModalComponent } from '../components/preference-modal/preference-modal.component';
+import { ComboModalComponent } from '../components/combo-modal/combo-modal.component';
 import { CommonModule } from '@angular/common';
 import { addIcons } from 'ionicons';
-import { checkmark, notifications, trash, ellipsisHorizontal, cartOutline } from 'ionicons/icons';
+import { checkmark, notifications, trash, ellipsisHorizontal, cartOutline, receiptOutline, layers } from 'ionicons/icons';
 
 @Component({
   selector: 'app-order',
   templateUrl: 'order.page.html',
+  styleUrls: ['order.page.scss'],
+  encapsulation: ViewEncapsulation.None,
   standalone: true,
   imports: [
     CommonModule,
@@ -41,6 +47,7 @@ import { checkmark, notifications, trash, ellipsisHorizontal, cartOutline } from
     IonItem, 
     IonLabel, 
     IonBadge, 
+    IonChip,
     IonFab, 
     IonFabButton
   ]
@@ -52,63 +59,123 @@ export class OrderPage {
   private alertCtrl = inject(AlertController);
   private loadingCtrl = inject(LoadingController);
   private toastCtrl = inject(ToastController);
+  private modalCtrl = inject(ModalController);
 
   constructor() {
-    addIcons({ checkmark, notifications, trash, ellipsisHorizontal, cartOutline });
+    addIcons({ checkmark, notifications, trash, ellipsisHorizontal, cartOutline, receiptOutline, layers });
   }
 
-  async showOptions(item: any, index: number) {
-    const actionSheet = await this.actionSheetCtrl.create({
-      header: item.name,
+  isArray(value: any): boolean {
+    return Array.isArray(value);
+  }
+
+  getPreferenceText(preferences: any[]): string {
+    if (!preferences || preferences.length === 0) return '';
+    return preferences
+      .filter((p: any) => p.selected !== false)
+      .map((p: any) => p.description || p)
+      .join(', ');
+  }
+
+  async confirmClearCart() {
+    const alert = await this.alertCtrl.create({
+      header: 'Borrar Pedido',
+      message: '¿Está seguro que desea borrar todos los artículos del pedido?',
       buttons: [
-        {
-          text: 'Agregar Preferencia',
-          icon: 'notifications',
-          handler: () => {
-             this.addPreference(item);
-          }
-        },
-        {
-          text: 'Eliminar del pedido',
-          role: 'destructive',
-          icon: 'trash',
-          handler: () => {
-            this.orderService.removeFromCart(index);
-          }
-        },
         {
           text: 'Cancelar',
           role: 'cancel'
-        }
-      ]
-    });
-    await actionSheet.present();
-  }
-
-  async addPreference(item: any) {
-    const alert = await this.alertCtrl.create({
-      header: 'Nota para cocina',
-      inputs: [
+        },
         {
-          name: 'preference',
-          type: 'text',
-          placeholder: 'Ej: Sin sal',
-          value: item.preference || ''
-        }
-      ],
-      buttons: [
-        'Cancelar',
-        {
-          text: 'Guardar',
-          handler: (data) => {
-            // TODO: Update item in cart (need to refactor cart storage to be mutable or update via service)
-            // For now, assume simple mutation for prototype
-            item.preference = data.preference; 
+          text: 'Borrar',
+          role: 'destructive',
+          handler: () => {
+            this.orderService.clearCart();
           }
         }
       ]
     });
     await alert.present();
+  }
+
+  async showOptions(item: any, index: number, comboIndex?: number) {
+    const buttons: any[] = [
+      {
+        text: 'Agregar Preferencia',
+        icon: 'notifications',
+        handler: () => {
+          this.addPreference(item, index);
+        }
+      }
+    ];
+
+    // Si es un combo sin combo_detail, agregar opción para editar
+    if (item.combo && !item.combo_detail && comboIndex !== undefined) {
+      buttons.push({
+        text: 'Detalle del Combo',
+        icon: 'layers',
+        handler: () => {
+          this.showCombo(item, index, comboIndex);
+        }
+      });
+    }
+
+    // Si es un combo con combo_detail, agregar opción para ver componentes
+    if (item.combo && item.combo_detail && Array.isArray(item.combo_detail)) {
+      buttons.push({
+        text: 'Ver Componentes',
+        icon: 'layers',
+        handler: () => {
+          this.viewComboComponents(item);
+        }
+      });
+    }
+
+    buttons.push({
+      text: 'Eliminar del pedido',
+      role: 'destructive',
+      icon: 'trash',
+      handler: () => {
+        if (comboIndex !== undefined) {
+          // Eliminar combo específico
+          this.orderService.removeComboByIndex(index, comboIndex);
+        } else {
+          // Eliminar artículo completo
+          this.orderService.removeItemByIndex(index);
+        }
+      }
+    });
+
+    buttons.push({
+      text: 'Cancelar',
+      role: 'cancel'
+    });
+
+    const actionSheet = await this.actionSheetCtrl.create({
+      header: item.name,
+      buttons
+    });
+    await actionSheet.present();
+  }
+
+  async addPreference(item: any, index: number) {
+    const modal = await this.modalCtrl.create({
+      component: PreferenceModalComponent,
+      componentProps: {
+        article: item
+      }
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    
+    if (data) {
+      // data es un array de preferencias seleccionadas
+      // Convertir a string para compatibilidad con el backend (como en legacy)
+      const preferenceString = data.map((p: any) => p.description).join(',');
+      this.orderService.updateItemPreference(index, data);
+    }
   }
 
   async sendOrder() {
@@ -146,6 +213,57 @@ export class OrderPage {
     await alert.present();
   }
 
+  async showCombo(item: any, itemIndex: number, comboIndex: number) {
+    const modal = await this.modalCtrl.create({
+      component: ComboModalComponent,
+      componentProps: {
+        article: item,
+        comboIndex: comboIndex
+      }
+    });
+
+    await modal.present();
+
+    const { data } = await modal.onWillDismiss();
+    
+    if (data && data.comboDetail) {
+      this.orderService.updateComboDetail(itemIndex, comboIndex, data.comboDetail);
+    }
+  }
+
+  async viewComboComponents(item: any) {
+    if (!item.combo_detail || !Array.isArray(item.combo_detail)) {
+      return;
+    }
+
+    // Construir mensaje con saltos de línea (el alert no interpreta HTML)
+    const components = item.combo_detail.map((component: any) => 
+      `• ${component.name || component.article_id}`
+    ).join('\n');
+
+    const alert = await this.alertCtrl.create({
+      header: 'Componentes del Combo',
+      message: components,
+      buttons: ['Cerrar'],
+      cssClass: 'combo-components-alert'
+    });
+    await alert.present();
+  }
+
+  processComboPreferences(preferences: any): string {
+    if (!preferences) return '';
+    
+    if (typeof preferences === 'string') {
+      return preferences;
+    } else if (Array.isArray(preferences)) {
+      return preferences
+        .filter((p: any) => p.selected !== false)
+        .map((p: any) => p.description || p)
+        .join(',');
+    }
+    return '';
+  }
+
   async processOrderSending(data: any) {
     const loader = await this.loadingCtrl.create({ message: 'Enviando pedido...' });
     await loader.present();
@@ -154,27 +272,91 @@ export class OrderPage {
     const waiter = waiterJson ? JSON.parse(waiterJson) : null;
     const waiterId = waiter ? waiter.id : 1; // Fallback to 1 if testing
 
-    // Legacy logic sends one request per item
-    const promises = this.orderService.cart().map(item => {
-      // Logic for Combo vs Single Item
-      // Simplified for now: Single item logic
-      // TODO: Handle combos if item.combo is present (legacy had verify inner logic)
-      
-      const payload = {
-        table: data.table,
-        waiter: waiterId,
-        code: item.id,
-        description: item.name,
-        quantity: item.quantity,
-        preference: item.preference || ''
-        // Legacy handles "combos" by iterating sub-items. V8 OrderService groups them.
-        // We need to ensure backend accepts this "single line" or if we need to split.
-        // Legacy "arr.push(create(obj))" happens inside a loop over articles.
-      };
-      return this.orderService.create(payload as any).toPromise(); 
-      // Using as any because payload doesn't strictly match Article interface but OrderService<Order> expects Order
-      // Order interface should be flexible
-    });
+    const promises: Promise<any>[] = [];
+    const cartItems = this.orderService.cart();
+
+    // Iterar sobre items del carrito
+    for (let index = 0; index < cartItems.length; index++) {
+      const item = cartItems[index];
+
+      // Si es un combo
+      if (item.combo && item.combos && Array.isArray(item.combos)) {
+        const combos = item.combos;
+        
+        for (let n = 0; n < combos.length; n++) {
+          const combo = combos[n];
+          
+          // Validar que tenga combo_detail
+          if (!combo.combo_detail || !Array.isArray(combo.combo_detail) || combo.combo_detail.length === 0) {
+            await loader.dismiss();
+            const toast = await this.toastCtrl.create({
+              message: 'Debe completar todos los combos antes de enviar',
+              duration: 3000,
+              position: 'top',
+              color: 'danger'
+            });
+            await toast.present();
+            return;
+          }
+
+          // Crear número negativo único para combo_item
+          const comboItem = -Math.abs(index) - (n + 1);
+
+          // Crear cabecera del combo
+          const comboHeader = {
+            table: data.table,
+            waiter: waiterId,
+            code: combo.id,
+            description: combo.name,
+            quantity: 1,
+            preference: this.processComboPreferences(combo.preference),
+            combo: combo.id,
+            combo_item: comboItem
+          };
+          promises.push(this.orderService.create(comboHeader as any).toPromise());
+
+          // Crear componentes del combo
+          for (let i = 0; i < combo.combo_detail.length; i++) {
+            const component = combo.combo_detail[i];
+            const componentPayload = {
+              table: data.table,
+              waiter: waiterId,
+              code: component.article_id,
+              description: '**' + component.name,
+              quantity: 1,
+              preference: '',
+              combo: component.combo,
+              combo_item: comboItem,
+              combo_group: component.combo_group
+            };
+            promises.push(this.orderService.create(componentPayload as any).toPromise());
+          }
+        }
+      } else {
+        // Artículo normal
+        let preferenceString = '';
+        if (item.preference) {
+          if (typeof item.preference === 'string') {
+            preferenceString = item.preference;
+          } else if (Array.isArray(item.preference)) {
+            preferenceString = item.preference
+              .filter((p: any) => p.selected !== false)
+              .map((p: any) => p.description || p)
+              .join(',');
+          }
+        }
+        
+        const payload = {
+          table: data.table,
+          waiter: waiterId,
+          code: item.id,
+          description: item.name,
+          quantity: item.quantity,
+          preference: preferenceString
+        };
+        promises.push(this.orderService.create(payload as any).toPromise());
+      }
+    }
 
     try {
       await Promise.all(promises);

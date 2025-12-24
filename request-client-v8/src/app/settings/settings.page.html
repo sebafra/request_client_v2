@@ -1,5 +1,10 @@
 <ion-header>
     <ion-toolbar>
+        <ion-buttons slot="start">
+            <ion-button (click)="goBack()">
+                <ion-icon slot="icon-only" name="arrow-back" color="primary"></ion-icon>
+            </ion-button>
+        </ion-buttons>
         <ion-title>Configuración</ion-title>
     </ion-toolbar>
 </ion-header>
@@ -41,11 +46,11 @@
             <ion-toggle slot="end" [(ngModel)]="comboComplete" (ionChange)="toggleComboSetting()"></ion-toggle>
         </ion-item>
 
-        <ion-item lines="none" class="ion-margin-top">
+        <ion-item lines="none" class="ion-margin-top" (click)="openEmail()">
             <ion-icon slot="start" name="mail"></ion-icon>
             <ion-label>
                 <h3>Soporte</h3>
-                <p>therequestapp@gmail.com</p>
+                <p>info@butterlabs.com.ar</p>
             </ion-label>
         </ion-item>
     </ion-list>
