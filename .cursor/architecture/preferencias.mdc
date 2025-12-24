@@ -1,0 +1,424 @@
+# Arquitectura del Sistema de Preferencias
+
+## Descripción General
+
+El sistema de preferencias permite agregar notas o instrucciones especiales a los artículos del pedido. Las preferencias pueden ser precargadas desde el servidor (asociadas a un artículo específico) o creadas manualmente por el usuario. El sistema soporta múltiples preferencias por artículo y las convierte a formato de texto para el backend.
+
+## Modelos de Datos
+
+### Preference Interface
+
+Representa una preferencia precargada desde el servidor:
+
+```typescript
+interface Preference extends BaseEntity {
+  name: string;
+  options?: string[];
+}
+```
+
+**Nota**: Aunque la interfaz define `name` y `options`, el backend devuelve preferencias con una propiedad `description` que es la que se utiliza en la práctica.
+
+### PreferenceItem Interface
+
+Representa una preferencia en el contexto del modal (interfaz interna):
+
+```typescript
+interface PreferenceItem {
+  description: string;  // Texto de la preferencia
+  selected: boolean;    // Si está seleccionada o no
+}
+```
+
+### Estructura en el Carrito
+
+Las preferencias se almacenan en el artículo del carrito de dos formas posibles:
+
+**Formato Array** (preferido, desde el modal):
+```typescript
+{
+  id: string,
+  name: string,
+  quantity: number,
+  preference: [
+    {
+      description: "Sin sal",
+      selected: true
+    },
+    {
+      description: "Bien cocido",
+      selected: true
+    }
+  ]
+}
+```
+
+**Formato String** (legacy, para compatibilidad):
+```typescript
+{
+  id: string,
+  name: string,
+  quantity: number,
+  preference: "Sin sal, Bien cocido"
+}
+```
+
+## Servicios
+
+### PreferenceService
+
+Extiende `BaseService<Preference>` y proporciona acceso a las preferencias precargadas:
+
+- **Endpoint base**: `/preferences`
+- **Método principal**: `getByArticleId(code: string | number)` - Obtiene las preferencias precargadas para un artículo específico
+  - **Endpoint**: `GET /preferences/:articleId`
+  - **Retorna**: Array de preferencias con propiedad `description`
+
+## Flujo de Funcionamiento
+
+### 1. Agregar Preferencias a un Artículo
+
+**Ubicación**: `order.page.ts -> addPreference(item, index)`
+
+**Proceso**:
+1. Se abre el `PreferenceModalComponent` pasando el artículo como `@Input`
+2. El modal carga preferencias existentes o precargadas
+3. El usuario puede:
+   - Seleccionar/deseleccionar preferencias precargadas
+   - Agregar preferencias personalizadas
+4. Al guardar, se retorna un array de `PreferenceItem[]` con solo las seleccionadas
+5. `OrderService.updateItemPreference()` actualiza el artículo en el carrito
+
+**Código clave**:
+```typescript
+async addPreference(item: any, index: number) {
+  const modal = await this.modalCtrl.create({
+    component: PreferenceModalComponent,
+    componentProps: { article: item }
+  });
+  
+  const { data } = await modal.onWillDismiss();
+  if (data) {
+    this.orderService.updateItemPreference(index, data);
+  }
+}
+```
+
+### 2. PreferenceModalComponent - Carga de Datos
+
+**Ubicación**: `components/preference-modal/preference-modal.component.ts`
+
+**Proceso de inicialización** (`ngOnInit`):
+
+1. **Si el artículo ya tiene preferencias**:
+   - **String**: Se convierte a array dividiendo por comas
+   - **Array**: Se usa directamente, normalizando el formato
+   - Todas las preferencias existentes se marcan como `selected: true`
+
+2. **Si no tiene preferencias**:
+   - Se llama a `loadPreferences()` que obtiene las preferencias precargadas del servidor
+   - Las preferencias del servidor se cargan con `selected: false` inicialmente
+
+**Código clave**:
+```typescript
+if (this.article?.preference) {
+  // Convertir string a array o usar array existente
+  if (typeof this.article.preference === 'string') {
+    this.preferences = this.article.preference.split(',').map((desc: string) => ({
+      description: desc.trim(),
+      selected: true
+    }));
+  }
+} else {
+  this.loadPreferences(); // Cargar del servidor
+}
+```
+
+### 3. Agregar Preferencia Personalizada
+
+**Método**: `addPreference()`
+
+**Proceso**:
+1. Se toma el texto del input `customPreference`
+2. Se valida que no esté vacío (después de `trim()`)
+3. Se verifica que no exista ya (comparación case-insensitive)
+4. Si no existe, se agrega con `selected: true`
+5. Se limpia el input
+
+**Características**:
+- Previene duplicados (case-insensitive)
+- Se puede agregar presionando Enter o el botón "+"
+- Las preferencias personalizadas se agregan automáticamente seleccionadas
+
+### 4. Seleccionar/Deseleccionar Preferencias
+
+**Método**: `selectPreference(item: PreferenceItem)`
+
+**Proceso**:
+- Toggle simple: `item.selected = !item.selected`
+- El cambio se refleja visualmente en el botón (solid/outline)
+
+**Interfaz visual**:
+- **Seleccionada**: Botón con `fill="solid"` (relleno)
+- **No seleccionada**: Botón con `fill="outline"` (solo borde)
+
+### 5. Guardar Preferencias
+
+**Método**: `dismiss()`
+
+**Proceso**:
+1. Se filtran solo las preferencias con `selected: true`
+2. Se retorna el array filtrado al componente padre
+3. El componente padre actualiza el artículo en el carrito
+
+**Código clave**:
+```typescript
+dismiss() {
+  const selectedPreferences = this.preferences.filter(p => p.selected);
+  this.modalCtrl.dismiss(selectedPreferences);
+}
+```
+
+### 6. Visualización en el Carrito
+
+**Ubicación**: `order.page.html`
+
+**Proceso de visualización**:
+
+1. **Detección del formato**:
+   - Se verifica si `preference` es un array usando `isArray()`
+   - Si es array, se usa `getPreferenceText()` para formatear
+   - Si es string, se muestra directamente
+
+2. **Formateo de texto** (`getPreferenceText()`):
+   - Filtra preferencias con `selected !== false`
+   - Extrae `description` de cada preferencia
+   - Une con `', '` (coma y espacio)
+
+**Código de visualización**:
+```html
+@if (item.preference) {
+  @if (isArray(item.preference) && item.preference.length > 0) {
+    <p>Nota: {{ getPreferenceText(item.preference) }}</p>
+  } @else if (typeof item.preference === 'string' && item.preference.length > 0) {
+    <p>Nota: {{ item.preference }}</p>
+  }
+}
+```
+
+### 7. Envío al Backend
+
+**Ubicación**: `order.page.ts -> processOrderSending()`
+
+**Proceso de conversión**:
+
+**Para artículos normales**:
+```typescript
+let preferenceString = '';
+if (item.preference) {
+  if (typeof item.preference === 'string') {
+    preferenceString = item.preference;
+  } else if (Array.isArray(item.preference)) {
+    preferenceString = item.preference
+      .filter((p: any) => p.selected !== false)
+      .map((p: any) => p.description || p)
+      .join(',');
+  }
+}
+```
+
+**Para combos**:
+```typescript
+preference: this.processComboPreferences(combo.preference)
+```
+
+**Método `processComboPreferences()`**:
+- Maneja string directamente
+- Convierte array a string filtrando y mapeando
+- Retorna string vacío si no hay preferencias
+
+**Formato final en el payload**:
+```typescript
+{
+  table: number,
+  waiter: number,
+  code: string,
+  description: string,
+  quantity: number,
+  preference: "Sin sal, Bien cocido"  // String separado por comas
+}
+```
+
+## Componentes UI
+
+### PreferenceModalComponent
+
+**Propósito**: Modal para seleccionar y agregar preferencias a un artículo
+
+**Inputs**:
+- `article`: Artículo al que se le agregarán las preferencias
+
+**Características**:
+- **Input para preferencias personalizadas**: Permite escribir y agregar nuevas preferencias
+- **Grid de botones**: Muestra preferencias precargadas y personalizadas como botones seleccionables
+- **Estados visuales**: Botones solid (seleccionado) u outline (no seleccionado)
+- **Carga asíncrona**: Muestra spinner mientras carga preferencias del servidor
+
+**Estructura del template**:
+1. Header con título "Preferencias" e icono `document-text`
+2. Input con botón "+" para agregar preferencias personalizadas
+3. Spinner durante carga
+4. Grid con botones de preferencias (precargadas y personalizadas)
+5. Botón "Guardar" para confirmar
+
+**Métodos principales**:
+- `ngOnInit()`: Inicializa preferencias (existentes o carga del servidor)
+- `loadPreferences()`: Obtiene preferencias precargadas del servidor
+- `addPreference()`: Agrega preferencia personalizada
+- `selectPreference(item)`: Toggle de selección
+- `dismiss()`: Guarda y retorna preferencias seleccionadas
+- `cancel()`: Cierra sin guardar
+
+## Operaciones del Carrito
+
+### OrderService - Métodos relacionados con Preferencias
+
+**`updateItemPreference(index: number, preference: any)`**:
+- Actualiza la propiedad `preference` de un artículo en el carrito
+- Acepta tanto array como string (para compatibilidad)
+- Se llama desde `OrderPage` después de cerrar el modal
+
+**Código**:
+```typescript
+updateItemPreference(index: number, preference: any) {
+  this._cartItems.update(items => {
+    if (index < 0 || index >= items.length) return items;
+    return items.map((item, idx) => 
+      idx === index ? { ...item, preference } : item
+    );
+  });
+}
+```
+
+## Flujo Completo de Ejemplo
+
+1. **Usuario agrega artículo al carrito**
+   - Artículo se agrega sin preferencias inicialmente
+
+2. **Usuario ve artículo en Order Page**
+   - No se muestra ninguna preferencia
+
+3. **Usuario abre opciones del artículo**
+   - Action sheet muestra opción "Agregar Preferencia"
+
+4. **Usuario abre PreferenceModal**
+   - Si el artículo tiene preferencias precargadas, se cargan del servidor
+   - Si ya tenía preferencias, se muestran las existentes
+   - Usuario puede:
+     - Seleccionar preferencias precargadas
+     - Agregar preferencias personalizadas
+
+5. **Usuario guarda preferencias**
+   - Solo las seleccionadas se guardan en el artículo
+   - El artículo se actualiza en el carrito con array de preferencias
+
+6. **Usuario ve preferencias en el carrito**
+   - Se muestra "Nota: [preferencias separadas por comas]"
+
+7. **Usuario envía pedido**
+   - Las preferencias se convierten a string separado por comas
+   - Se incluyen en el payload del pedido
+
+## Compatibilidad y Conversión de Formatos
+
+### De Array a String
+
+**Contexto**: Al enviar al backend, las preferencias deben ser un string.
+
+**Proceso**:
+1. Filtrar preferencias con `selected !== false`
+2. Extraer `description` de cada preferencia
+3. Unir con `','` (sin espacio) para el backend
+
+**Código**:
+```typescript
+preferenceString = item.preference
+  .filter((p: any) => p.selected !== false)
+  .map((p: any) => p.description || p)
+  .join(',');
+```
+
+### De String a Array
+
+**Contexto**: Al cargar preferencias existentes desde el carrito.
+
+**Proceso**:
+1. Dividir string por comas
+2. Crear objetos `PreferenceItem` con `selected: true`
+3. Limpiar espacios con `trim()`
+
+**Código**:
+```typescript
+this.preferences = this.article.preference.split(',').map((desc: string) => ({
+  description: desc.trim(),
+  selected: true
+}));
+```
+
+## Preferencias en Combos
+
+Los combos también pueden tener preferencias, pero se manejan de forma diferente:
+
+- **Almacenamiento**: Se guardan en cada instancia del combo (`combo.preference`)
+- **Procesamiento**: Se usa `processComboPreferences()` que maneja ambos formatos
+- **Envío**: Se incluyen en la cabecera del combo, no en los componentes
+
+**Código de procesamiento para combos**:
+```typescript
+processComboPreferences(preferences: any): string {
+  if (!preferences) return '';
+  if (typeof preferences === 'string') return preferences;
+  if (Array.isArray(preferences)) {
+    return preferences
+      .filter((p: any) => p.selected !== false)
+      .map((p: any) => p.description || p)
+      .join(',');
+  }
+  return '';
+}
+```
+
+## Consideraciones Técnicas
+
+### Prevención de Duplicados
+
+Al agregar preferencias personalizadas, se verifica que no exista ya:
+- Comparación case-insensitive
+- Se compara solo la descripción
+
+### Persistencia
+
+Las preferencias se mantienen en el carrito durante la sesión:
+- Se almacenan en el signal `_cartItems` de `OrderService`
+- Se pierden al limpiar el carrito o cerrar la sesión
+- No se persisten en localStorage
+
+### Validación
+
+- No hay límite de preferencias por artículo
+- Las preferencias vacías se filtran antes de guardar
+- Se valida que el input no esté vacío antes de agregar
+
+## Endpoints de API
+
+- `GET /preferences/:articleId` - Obtiene preferencias precargadas para un artículo
+- `POST /orders` - Crea orden (incluye `preference` como string)
+
+## Referencias
+
+- **Modelo**: `src/app/core/models/preference.interface.ts`
+- **Servicio**: `src/app/core/services/preference.service.ts`
+- **Componente**: `src/app/components/preference-modal/preference-modal.component.ts`
+- **Lógica de carrito**: `src/app/core/services/order.service.ts -> updateItemPreference()`
+- **Visualización**: `src/app/order/order.page.html` y `order.page.ts -> getPreferenceText()`
+- **Procesamiento de envío**: `src/app/order/order.page.ts -> processOrderSending()`

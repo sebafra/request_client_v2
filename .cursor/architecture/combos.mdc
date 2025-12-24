@@ -1,0 +1,352 @@
+# Arquitectura del Sistema de Combos
+
+## Descripción General
+
+El sistema de combos permite crear artículos compuestos por múltiples componentes organizados en hasta 5 grupos configurables. Cada combo puede tener diferentes reglas de selección según la configuración del sistema.
+
+## Modelos de Datos
+
+### Combo Interface
+
+Representa la configuración de un combo con sus grupos y cantidades:
+
+```typescript
+interface Combo extends BaseEntity {
+  name: string;
+  price: number;
+  articles: any[];
+  group_1_name: string;  // Nombre del grupo 1 (ej: "Bebidas")
+  group_1_ud: number;      // Cantidad de unidades requeridas/seleccionables
+  group_2_name: string;
+  group_2_ud: number;
+  group_3_name: string;
+  group_3_ud: number;
+  group_4_name: string;
+  group_4_ud: number;
+  group_5_name: string;
+  group_5_ud: number;
+}
+```
+
+**Características:**
+- **Grupo 1**: Siempre incluye todos los artículos disponibles (selección automática)
+- **Grupos 2-5**: Configurables con nombre y cantidad de unidades
+
+### ComboArticle Interface
+
+Representa un artículo que forma parte de un combo:
+
+```typescript
+interface ComboArticle extends BaseEntity {
+  combo_id: string;      // ID del combo al que pertenece
+  group: number;          // Grupo al que pertenece (1-5)
+  disabled: boolean;      // Si está deshabilitado
+  article_id: string;     // ID del artículo
+  article?: Article;      // Artículo poblado desde el backend
+}
+```
+
+### Estructura en el Carrito
+
+Cuando un combo se agrega al carrito, se crea la siguiente estructura:
+
+```typescript
+{
+  id: string,              // ID del artículo combo
+  name: string,            // Nombre del combo
+  combo: true,             // Flag que indica que es un combo
+  quantity: number,        // Cantidad de instancias del combo
+  combos: [                // Array de instancias del combo
+    {
+      ...article,          // Datos del artículo combo
+      quantity: 1,
+      order_number: 1,     // Número de orden de esta instancia
+      combo_detail: null,  // Detalle de componentes (null si no está configurado)
+      preference: any      // Preferencias del combo
+    }
+  ]
+}
+```
+
+### Combo Detail
+
+Cuando un combo está configurado, `combo_detail` contiene:
+
+```typescript
+[
+  {
+    name: string,          // Nombre del artículo componente
+    article_id: string,   // ID del artículo
+    combo: string,        // ID del combo
+    combo_group: number   // Grupo al que pertenece (1-5)
+  }
+]
+```
+
+## Servicios
+
+### ComboService
+
+Extiende `BaseService<Combo>` y proporciona acceso a la configuración de combos:
+
+- **Endpoint**: `/combos`
+- **Método principal**: `getById(comboId)` - Obtiene la configuración de un combo
+
+### ComboArticleService
+
+Extiende `BaseService<ComboArticle>` y proporciona acceso a los artículos de un combo:
+
+- **Endpoint**: `/combo_articles`
+- **Método principal**: `getByComboId(comboId)` - Obtiene todos los artículos disponibles para un combo, agrupados por grupo
+
+## Flujo de Funcionamiento
+
+### 1. Agregar Combo al Carrito
+
+**Ubicación**: `OrderService.addToCart(article)`
+
+**Proceso**:
+1. Si el artículo tiene `combo: true`, se crea una estructura especial
+2. Si ya existe en el carrito, se agrega una nueva instancia al array `combos[]`
+3. Cada instancia tiene `order_number` único y `combo_detail: null` inicialmente
+
+**Código clave**:
+```typescript
+if (article.combo) {
+  const newCombo = {
+    ...article,
+    quantity: 1,
+    order_number: (existing.combos?.length || 0) + 1,
+    combo_detail: null
+  };
+  // Agregar al array combos[]
+}
+```
+
+### 2. Configurar Combo (ComboModalComponent)
+
+**Ubicación**: `components/combo-modal/combo-modal.component.ts`
+
+**Proceso**:
+
+1. **Carga de datos**:
+   - `loadGroups()`: Obtiene la configuración del combo (nombres y cantidades de grupos)
+   - `loadCombos()`: Obtiene los artículos disponibles para cada grupo
+   - `processComboData()`: Filtra artículos por grupo (1-5)
+
+2. **Inicialización**:
+   - Grupo 1: Todos los artículos se seleccionan automáticamente
+   - Grupos 2-5: Inicialmente vacíos
+
+3. **Validación según `REQUEST_COMBO_COMPLETE`**:
+   
+   **Si `REQUEST_COMBO_COMPLETE === 'true'`** (Modo estricto):
+   - Debe seleccionar **exactamente** la cantidad requerida en cada grupo
+   - Ejemplo: Si `group_2_ud = 2`, debe seleccionar exactamente 2 artículos
+   
+   **Si `REQUEST_COMBO_COMPLETE === 'false'`** (Modo flexible):
+   - Puede seleccionar **hasta** la cantidad máxima
+   - Ejemplo: Si `group_2_ud = 2`, puede seleccionar 0, 1 o 2 artículos
+
+4. **Guardado**:
+   - `saveCombo()`: Crea el array `combo_detail` con todos los componentes seleccionados
+   - Retorna el `comboDetail` al componente padre
+   - `OrderService.updateComboDetail()` actualiza el combo en el carrito
+
+**Interfaz de usuario**:
+- Grupo 1: Lista de artículos con checkmark (todos seleccionados)
+- Grupos 2-5: Selectores con `interface="popover"` y `labelPlacement="floating"`
+- Botón "Aplicar" para guardar la configuración
+
+### 3. Visualización en el Carrito
+
+**Ubicación**: `order.page.html`
+
+**Indicadores visuales**:
+- **Chip con icono `layers`**:
+  - Color gris (`medium`) cuando `combo_detail === null` (combo vacío)
+  - Color naranja (`secondary`) cuando `combo_detail` está configurado (combo completo)
+
+**Estructura de visualización**:
+```html
+@if (item.combo && item.combos) {
+  @for (combo of item.combos; track combo.order_number) {
+    <!-- Muestra cada instancia del combo -->
+    <!-- Chip indica estado: gris (vacío) o naranja (completo) -->
+  }
+}
+```
+
+### 4. Envío al Backend
+
+**Ubicación**: `order.page.ts -> processOrderSending()`
+
+**Proceso**:
+
+1. **Validación previa**:
+   - Verifica que todos los combos tengan `combo_detail` configurado
+   - Si falta alguno, muestra error y detiene el envío
+
+2. **Creación de registros**:
+
+   **Para cada instancia de combo**:
+   
+   a) **Cabecera del combo**:
+   ```typescript
+   {
+     table: number,
+     waiter: number,
+     code: combo.id,
+     description: combo.name,
+     quantity: 1,
+     preference: string,        // Preferencias procesadas
+     combo: combo.id,
+     combo_item: number          // Número negativo único
+   }
+   ```
+   
+   b) **Componentes del combo** (uno por cada artículo en `combo_detail`):
+   ```typescript
+   {
+     table: number,
+     waiter: number,
+     code: component.article_id,
+     description: '**' + component.name,  // Prefijo ** indica componente
+     quantity: 1,
+     preference: '',
+     combo: component.combo,
+     combo_item: number,          // Mismo número que la cabecera
+     combo_group: number          // Grupo al que pertenece (1-5)
+   }
+   ```
+
+3. **Números únicos**:
+   - `combo_item`: Número negativo único generado como `-Math.abs(index) - (n + 1)`
+   - Vincula la cabecera con sus componentes
+
+4. **Envío paralelo**:
+   - Todas las promesas se ejecutan en paralelo con `Promise.all()`
+
+## Configuración
+
+### REQUEST_COMBO_COMPLETE
+
+**Ubicación**: `localStorage.getItem('REQUEST_COMBO_COMPLETE')`
+
+**Valores**:
+- `'true'`: Modo estricto - debe seleccionar exactamente las cantidades requeridas
+- `'false'`: Modo flexible - puede seleccionar hasta las cantidades máximas
+
+**Configuración**: Disponible en `SettingsPage` como toggle "Combo Completo"
+
+## Componentes UI
+
+### ComboModalComponent
+
+**Propósito**: Modal para configurar los componentes de un combo
+
+**Inputs**:
+- `article`: Artículo combo a configurar
+- `comboIndex`: Índice del combo en el array `combos[]`
+
+**Características**:
+- Carga configuración y artículos disponibles
+- Valida selecciones según `REQUEST_COMBO_COMPLETE`
+- Retorna `comboDetail` al cerrar
+
+**Estilos**:
+- Fondo adaptado al tema (no usa color primario)
+- Selectores con popover centrado
+- Botón "Aplicar" con estilos consistentes
+
+### Indicadores Visuales
+
+**En Articles Page**:
+- Chip con icono `layers` y label "COMBO" para artículos combo
+
+**En Order Page**:
+- Chip con solo icono `layers`:
+  - Gris cuando está vacío
+  - Naranja cuando está completo
+
+## Operaciones del Carrito
+
+### OrderService - Métodos relacionados con Combos
+
+1. **`addToCart(article)`**:
+   - Detecta si es combo y crea estructura especial
+   - Agrega nueva instancia al array `combos[]` si ya existe
+
+2. **`removeComboByIndex(itemIndex, comboIndex)`**:
+   - Elimina una instancia específica del combo
+   - Si no quedan instancias, elimina el artículo completo
+
+3. **`updateComboDetail(itemIndex, comboIndex, comboDetail)`**:
+   - Actualiza el `combo_detail` de una instancia específica
+   - Se llama desde `ComboModalComponent` al guardar
+
+4. **`removeItemByIndex(index)`**:
+   - Maneja eliminación de combos (elimina última instancia)
+   - Si no quedan instancias, elimina el artículo completo
+
+## Flujo Completo de Ejemplo
+
+1. **Usuario selecciona combo en Articles Page**
+   - `OrderService.addToCart(comboArticle)` crea estructura con `combos: [{ combo_detail: null }]`
+
+2. **Usuario ve combo en Order Page**
+   - Chip gris indica que está vacío
+   - Opción "Detalle del Combo" disponible en action sheet
+
+3. **Usuario abre ComboModal**
+   - Carga configuración (5 grupos)
+   - Carga artículos disponibles
+   - Grupo 1 pre-seleccionado
+   - Usuario selecciona en grupos 2-5
+
+4. **Usuario aplica configuración**
+   - Validación según `REQUEST_COMBO_COMPLETE`
+   - `combo_detail` se crea y actualiza en el carrito
+   - Chip cambia a naranja
+
+5. **Usuario envía pedido**
+   - Validación: todos los combos deben tener `combo_detail`
+   - Se crean registros: 1 cabecera + N componentes
+   - Todos vinculados con `combo_item` negativo único
+
+## Consideraciones Técnicas
+
+### Múltiples Instancias
+
+Un mismo combo puede agregarse múltiples veces al carrito. Cada instancia:
+- Tiene su propio `order_number`
+- Mantiene su propio `combo_detail`
+- Se configura independientemente
+
+### Preferencias en Combos
+
+Los combos pueden tener preferencias igual que los artículos normales:
+- Se procesan en `processComboPreferences()`
+- Se envían en la cabecera del combo
+- Los componentes no tienen preferencias
+
+### Validación de Envío
+
+Antes de enviar, se valida que:
+- Todos los combos tengan `combo_detail` configurado
+- `combo_detail` no esté vacío
+- Si falta alguno, se muestra error y se detiene el envío
+
+## Endpoints de API
+
+- `GET /combos/:id` - Obtiene configuración del combo
+- `GET /combo_articles/:comboId` - Obtiene artículos disponibles para un combo (con `_populates=article`)
+- `POST /orders` - Crea orden (cabecera y componentes del combo)
+
+## Referencias
+
+- **Modelos**: `src/app/core/models/combo.interface.ts`, `combo-article.interface.ts`
+- **Servicios**: `src/app/core/services/combo.service.ts`, `combo-article.service.ts`
+- **Componente**: `src/app/components/combo-modal/combo-modal.component.ts`
+- **Lógica de carrito**: `src/app/core/services/order.service.ts`
+- **Procesamiento de envío**: `src/app/order/order.page.ts`
