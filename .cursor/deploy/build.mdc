@@ -1,0 +1,214 @@
+# Guía de Build y Deploy
+
+## Pasos para Build, Sync y Abrir Android Studio
+
+### 1. Build del Proyecto Angular/Ionic
+
+Compila la aplicación Angular/Ionic y genera los archivos optimizados en la carpeta `www/`.
+
+```bash
+cd /Users/seba/Sites/request/request_client_v2/request-client-v8
+npm run build
+```
+
+**Qué hace:**
+- Compila TypeScript a JavaScript
+- Optimiza y minifica el código
+- Genera bundles para lazy loading
+- Copia assets (imágenes, fuentes, etc.)
+- Genera archivos en `www/` listos para producción
+
+**Salida esperada:**
+- Archivos compilados en `www/`
+- Estadísticas de tamaño de bundles
+- Hash de build para cache busting
+
+---
+
+### 2. Sync de Capacitor
+
+Sincroniza los archivos web compilados con el proyecto nativo de Android y actualiza los plugins de Capacitor.
+
+```bash
+npx cap sync android
+```
+
+**Qué hace:**
+- Copia archivos de `www/` a `android/app/src/main/assets/public`
+- Crea/actualiza `capacitor.config.json` en Android
+- Actualiza plugins de Capacitor instalados
+- Sincroniza configuración de Capacitor
+
+**Salida esperada:**
+- Confirmación de copia de assets
+- Lista de plugins encontrados y actualizados
+- Tiempo de sincronización
+
+**Plugins comunes:**
+- `@capacitor/app`
+- `@capacitor/haptics`
+- `@capacitor/keyboard`
+- `@capacitor/status-bar`
+
+---
+
+### 3. Abrir Android Studio
+
+Abre el proyecto Android en Android Studio para ejecutar, depurar o construir la aplicación.
+
+```bash
+npx cap open android
+```
+
+**Qué hace:**
+- Abre Android Studio con el proyecto en `android/`
+- Carga la configuración de Gradle
+- Prepara el entorno para ejecutar la app
+
+**Después de abrir:**
+- Esperar a que Android Studio indexe el proyecto
+- Sincronizar Gradle si es necesario
+- Conectar dispositivo o iniciar emulador
+- Ejecutar la app con el botón "Run" o `Shift+F10`
+
+---
+
+## Comandos en Secuencia
+
+### Opción 1: Comandos Separados
+
+```bash
+# 1. Build
+cd /Users/seba/Sites/request/request_client_v2/request-client-v8
+npm run build
+
+# 2. Sync
+npx cap sync android
+
+# 3. Abrir Android Studio
+npx cap open android
+```
+
+### Opción 2: Comando Único (Una Línea)
+
+```bash
+cd /Users/seba/Sites/request/request_client_v2/request-client-v8 && npm run build && npx cap sync android && npx cap open android
+```
+
+---
+
+## Flujo Completo de Desarrollo
+
+### Desarrollo Normal
+
+1. **Hacer cambios en el código**
+2. **Build**: `npm run build`
+3. **Sync**: `npx cap sync android`
+4. **Abrir/Actualizar Android Studio**: `npx cap open android`
+5. **Ejecutar en dispositivo/emulador**
+
+### Desarrollo Rápido (Live Reload)
+
+Para desarrollo con hot reload, usar:
+
+```bash
+npm run start
+```
+
+Y en otra terminal:
+
+```bash
+npx cap run android
+```
+
+Esto ejecuta la app directamente sin necesidad de abrir Android Studio.
+
+---
+
+## Estructura de Directorios
+
+```
+request-client-v8/
+├── www/                    # Archivos compilados (generados por build)
+├── android/                # Proyecto Android nativo
+│   └── app/
+│       └── src/
+│           └── main/
+│               └── assets/
+│                   └── public/    # Archivos web copiados por sync
+├── src/                    # Código fuente
+└── capacitor.config.ts     # Configuración de Capacitor
+```
+
+---
+
+## Troubleshooting
+
+### Error: "www folder not found"
+**Solución**: Ejecutar `npm run build` primero antes de `npx cap sync`
+
+### Error: "Gradle sync failed"
+**Solución**: 
+- Abrir Android Studio
+- Ir a `File > Sync Project with Gradle Files`
+- O ejecutar `./gradlew clean` en la carpeta `android/`
+
+### Cambios no se reflejan en la app
+**Solución**:
+1. Verificar que el build se completó correctamente
+2. Ejecutar `npx cap sync android` nuevamente
+3. En Android Studio: `Build > Clean Project` y luego `Build > Rebuild Project`
+4. Reiniciar la app en el dispositivo/emulador
+
+### Plugin no funciona después de sync
+**Solución**:
+- Verificar que el plugin está instalado: `npm list @capacitor/plugin-name`
+- Reinstalar: `npm install @capacitor/plugin-name`
+- Ejecutar `npx cap sync android` nuevamente
+
+---
+
+## Comandos Útiles Adicionales
+
+### Ver información de Capacitor
+```bash
+npx cap doctor
+```
+
+### Listar plugins instalados
+```bash
+npx cap ls
+```
+
+### Actualizar dependencias de Capacitor
+```bash
+npx cap update
+```
+
+### Ejecutar directamente en Android (sin Android Studio)
+```bash
+npx cap run android
+```
+
+### Ejecutar en emulador específico
+```bash
+npx cap run android --target=emulator-5554
+```
+
+---
+
+## Notas Importantes
+
+1. **Siempre hacer build antes de sync**: Los cambios en `src/` no se reflejan hasta que se compile
+2. **Sync después de cambios en plugins**: Si instalas o actualizas plugins, ejecutar sync
+3. **Android Studio puede tardar**: La primera vez que se abre puede tardar en indexar
+4. **Gradle puede requerir internet**: La primera sincronización descarga dependencias
+5. **Verificar versión de Node**: Capacitor requiere Node.js 14+ (recomendado 16+)
+
+---
+
+## Referencias
+
+- [Capacitor CLI Documentation](https://capacitorjs.com/docs/cli)
+- [Ionic Build Documentation](https://ionicframework.com/docs/cli/commands/build)
+- [Android Studio Guide](https://developer.android.com/studio)

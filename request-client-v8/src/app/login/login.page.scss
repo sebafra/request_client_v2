@@ -1,5 +1,6 @@
 .login-content {
     --background: transparent;
+    --padding-bottom: 60px; /* Espacio para el footer */
 }
 
 .login-bg {
@@ -67,10 +68,19 @@ h1 {
 /* Footer */
 .transparent-footer {
     --background: transparent;
-    background: transparent;
+    background: transparent !important;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    padding: 10px 0;
 }
 
 .transparent-footer ion-text {
-    font-size: 0.8rem;
-    opacity: 0.8;
+    font-size: 0.9rem;
+    opacity: 1;
+    color: var(--ion-color-medium) !important;
+    --color: var(--ion-color-medium) !important;
+    font-weight: 500;
 }

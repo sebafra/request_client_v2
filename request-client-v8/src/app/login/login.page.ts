@@ -25,7 +25,7 @@ import { APP_VERSION } from '../app.constants';
 @Component({
   selector: 'app-login',
   template: `
-    <ion-content class="login-content" [fullscreen]="true">
+    <ion-content class="login-content">
       <div class="login-bg"></div>
       
       <ion-grid class="logo-container">
@@ -66,7 +66,7 @@ import { APP_VERSION } from '../app.constants';
         <ion-grid>
         <ion-row>
             <ion-col size="8" offset="2" class="ion-text-center">
-                <ion-text color="dark">v{{version}}</ion-text>
+                <ion-text color="medium">v{{version || '0.0.0'}}</ion-text>
             </ion-col>
         </ion-row>
         </ion-grid>
@@ -92,7 +92,7 @@ import { APP_VERSION } from '../app.constants';
 })
 export class LoginPage {
   username = '';
-  version = APP_VERSION; // Should ideally come from constants
+  version: string;
   password = ''; // Legacy didn't use password for waiter login, just ID
   private navCtrl = inject(NavController);
 
@@ -102,6 +102,8 @@ export class LoginPage {
 
   constructor() {
     addIcons({ person, key, settings });
+    // Inicializar en constructor para evitar tree-shaking en builds de producción
+    this.version = APP_VERSION;
   }
 
   goToSettings() {
